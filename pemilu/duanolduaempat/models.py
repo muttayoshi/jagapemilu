@@ -11,7 +11,9 @@ class Tps(TimeStampedModel):
     url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.status_adm}"
+        from pemilu.locations.models import Kelurahan
+        kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
+        return f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - {kelurahan.kecamatan.name} - {kelurahan.name}"
 
     class Meta:
         ordering = ('-created',)
@@ -62,7 +64,19 @@ class Administration(TimeStampedModel):
     pengguna_non_dpt_p = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.count}"
+        return f"{self.suara_sah} - {self.suara_total}"
+
+    class Meta:
+        ordering = ('-created',)
+
+
+class AnomalyDetection(TimeStampedModel):
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='anomalies')
+    url = models.URLField(null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.url}"
 
     class Meta:
         ordering = ('-created',)
