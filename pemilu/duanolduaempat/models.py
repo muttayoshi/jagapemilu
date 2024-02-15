@@ -11,7 +11,7 @@ class Tps(TimeStampedModel):
     url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.count}"
+        return f"{self.name} - {self.status_adm}"
 
     class Meta:
         ordering = ('-created',)
@@ -34,8 +34,8 @@ class Image(TimeStampedModel):
     url = models.URLField(null=True, blank=True)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.url
 
     class Meta:
         ordering = ('-created',)

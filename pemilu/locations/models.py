@@ -46,4 +46,4 @@ class Kelurahan(TimeStampedModel):
         return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('created',)
