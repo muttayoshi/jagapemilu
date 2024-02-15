@@ -15,6 +15,9 @@ entryPoints:
     # https
     address: ':443'
 
+  flower:
+    address: ':5555'
+
 certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
@@ -34,6 +37,15 @@ http:
       middlewares:
         - csrf
       service: django
+      tls:
+        # https://docs.traefik.io/master/routing/routers/#certresolver
+        certResolver: letsencrypt
+
+    flower-secure-router:
+      rule: 'Host(`mufakat.id`)'
+      entryPoints:
+        - flower
+      service: flower
       tls:
         # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
@@ -60,6 +72,11 @@ http:
       loadBalancer:
         servers:
           - url: http://django:5000
+
+    flower:
+      loadBalancer:
+        servers:
+          - url: http://flower:5555
 
     django-media:
       loadBalancer:
