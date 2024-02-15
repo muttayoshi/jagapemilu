@@ -13,7 +13,7 @@ class Tps(TimeStampedModel):
     def __str__(self):
         from pemilu.locations.models import Kelurahan
         kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
-        return f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - {kelurahan.kecamatan.name} - {kelurahan.name}"
+        return f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - {kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}"
 
     class Meta:
         ordering = ('-created',)
