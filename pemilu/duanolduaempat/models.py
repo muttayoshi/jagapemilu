@@ -1,0 +1,68 @@
+from django.db import models
+from model_utils.models import TimeStampedModel
+
+
+class Tps(TimeStampedModel):
+    name = models.CharField(max_length=100)
+    psu = models.CharField(null=True, blank=True)
+    ts = models.DateTimeField(null=True, blank=True)
+    status_suara = models.BooleanField(default=False)
+    status_adm = models.BooleanField(default=False)
+    url = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.count}"
+
+    class Meta:
+        ordering = ('-created',)
+
+
+class Chart(TimeStampedModel):
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='charts')
+    name = models.CharField(max_length=100)
+    count = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.count}"
+
+    class Meta:
+        ordering = ('-created',)
+
+
+class Image(TimeStampedModel):
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='images')
+    url = models.URLField(null=True, blank=True)
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('-created',)
+
+
+class Administration(TimeStampedModel):
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='administrations')
+    suara_sah = models.IntegerField(null=True, blank=True)
+    suara_total = models.IntegerField(null=True, blank=True)
+    pemilih_dpt_l = models.IntegerField(null=True, blank=True)
+    pemilih_dpt_p = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_j = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_l = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_p = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_j = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_l = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_p = models.IntegerField(null=True, blank=True)
+    suara_tidak_sah = models.IntegerField(null=True, blank=True)
+    pengguna_total_j = models.IntegerField(null=True, blank=True)
+    pengguna_total_l = models.IntegerField(null=True, blank=True)
+    pengguna_total_p = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_j = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_l = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_p = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.count}"
+
+    class Meta:
+        ordering = ('-created',)
