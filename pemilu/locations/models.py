@@ -38,7 +38,7 @@ class Kecamatan(TimeStampedModel):
 
 
 class Kelurahan(TimeStampedModel):
-    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan')
+    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan', null=True, blank=True)
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
 
