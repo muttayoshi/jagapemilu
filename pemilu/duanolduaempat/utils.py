@@ -111,18 +111,22 @@ def anomaly_detection():
                         url = t.url,
                         message = f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected"
                     )
+                    print(f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected")
+                    print(f"TPS: {t.url}")
 
             count = 0
             for c in charts:
                 if c.count:
                     count += c.count
 
-            if count != suara_sah:
+            if suara_sah and count != suara_sah:
                 AnomalyDetection.objects.get_or_create(
                     tps=t,
                     url=t.url,
                     message=f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected"
                 )
+                print(f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected")
+                print(f"TPS: {t.url}")
 
     print("Anomaly Detection Done")
 

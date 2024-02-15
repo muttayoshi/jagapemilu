@@ -32,5 +32,5 @@ class TpsAdmin(admin.ModelAdmin):
 class AnomalyDetectionAdmin(admin.ModelAdmin):
     list_display = ('tps', 'message')
     list_filter = ('message',)
-    search_fields = ('tps', 'status', 'message')
+    search_fields = ('tps', 'message')
     list_per_page = 25
