@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 from pemilu.locations.models import Provinsi, Kota, Kecamatan, Kelurahan
 from pemilu.duanolduaempat.models import Tps, Chart, Image, Administration, AnomalyDetection
 
@@ -109,13 +110,23 @@ def anomaly_detection():
                     AnomalyDetection.objects.get_or_create(
                         tps=t,
                         url = t.url,
-                        message = f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected"
+                        message = f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected",
+                        type = "Human Error"
                     )
-                    print(f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected")
+                    print(f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected (Human Error)")
                     print(f"TPS: {t.url}")
 
             count = 0
             for c in charts:
+                if c.count and c.count > 300:
+                    AnomalyDetection.objects.get_or_create(
+                        tps=t,
+                        url=t.url,
+                        message=f"Count: {c.count} higher than 300 - Anomaly Detected",
+                        type="Curang"
+                    )
+                    print(f"Count: {c.count} higher than 300 - Anomaly Detected (Curang)")
+                    print(f"TPS: {t.url}")
                 if c.count:
                     count += c.count
 
@@ -123,17 +134,14 @@ def anomaly_detection():
                 AnomalyDetection.objects.get_or_create(
                     tps=t,
                     url=t.url,
-                    message=f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected"
+                    message=f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected",
+                    type="Human Error"
                 )
-                print(f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected")
+                print(f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected (Human Error)")
                 print(f"TPS: {t.url}")
 
     print("Anomaly Detection Done")
 
-
-import requests
-from pemilu.locations.models import Kelurahan
-from pemilu.duanolduaempat.models import Tps, Chart, Image, Administration
 
 def crawling_kpu(province_code):
     for k in Kelurahan.objects.filter(code__startswith=province_code).all():
