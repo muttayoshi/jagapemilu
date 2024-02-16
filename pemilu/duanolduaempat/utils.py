@@ -1,71 +1,7 @@
 import requests
-from celery import shared_task
 
 from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Tps
 from pemilu.locations.models import Kelurahan, Provinsi
-
-
-@shared_task
-def crawling_all_kpu():
-    provinsi = Provinsi.objects.all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_sumatera():
-    provinsi = Provinsi.objects.filter(code__startswith="1").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_riau():
-    provinsi = Provinsi.objects.filter(code__startswith="2").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_jawa():
-    provinsi = Provinsi.objects.filter(code__startswith="3").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_bali():
-    provinsi = Provinsi.objects.filter(code__startswith="5").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_kalimantan():
-    provinsi = Provinsi.objects.filter(code__startswith="6").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_sulawesi():
-    provinsi = Provinsi.objects.filter(code__startswith="7").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_maluku():
-    provinsi = Provinsi.objects.filter(code__startswith="8").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
-
-
-@shared_task
-def crawling_papua():
-    provinsi = Provinsi.objects.filter(code__startswith="9").all()
-    for p in provinsi:
-        crawling_kpu(p.code)
 
 
 def crawling_kpu(province_code):
@@ -163,7 +99,6 @@ def crawling_kpu(province_code):
                 tps = str(int(tps) + 1).zfill(3)
 
 
-@shared_task
 def anomaly_detection():
     tps = Tps.objects.all()
 
