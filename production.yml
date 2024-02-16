@@ -11,7 +11,6 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-
     image: pemilu_production_django
     volumes:
       - production_django_media:/app/pemilu/media
@@ -21,6 +20,8 @@ services:
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
+    ports:
+      - '8000:8000'
     command: /start
 
   postgres:
@@ -34,19 +35,19 @@ services:
     env_file:
       - ./.envs/.production/.postgres
 
-  traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
-    image: pemilu_production_traefik
-    depends_on:
-      - django
-    volumes:
-      - production_traefik:/etc/traefik/acme
-    ports:
-      - '0.0.0.0:80:80'
-      - '0.0.0.0:443:443'
-      - '0.0.0.0:5555:5555'
+#  traefik:
+#    build:
+#      context: .
+#      dockerfile: ./compose/production/traefik/Dockerfile
+#    image: pemilu_production_traefik
+#    depends_on:
+#      - django
+#    volumes:
+#      - production_traefik:/etc/traefik/acme
+#    ports:
+#      - '0.0.0.0:80:80'
+#      - '0.0.0.0:443:443'
+#      - '0.0.0.0:5555:5555'
 
   redis:
     image: redis:6
@@ -66,12 +67,12 @@ services:
     image: pemilu_production_flower
     command: /start-flower
 
-  nginx:
-    build:
-      context: .
-      dockerfile: ./compose/production/nginx/Dockerfile
-    image: pemilu_local_nginx
-    depends_on:
-      - django
-    volumes:
-      - production_django_media:/usr/share/nginx/media:ro
+#  nginx:
+#    build:
+#      context: .
+#      dockerfile: ./compose/production/nginx/Dockerfile
+#    image: pemilu_local_nginx
+#    depends_on:
+#      - django
+#    volumes:
+#      - production_django_media:/usr/share/nginx/media:ro
