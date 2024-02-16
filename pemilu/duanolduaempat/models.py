@@ -9,46 +9,51 @@ class Tps(TimeStampedModel):
     status_suara = models.BooleanField(default=False)
     status_adm = models.BooleanField(default=False)
     url = models.URLField(null=True, blank=True)
+    has_anomaly = models.BooleanField(default=False)
 
     def __str__(self):
         from pemilu.locations.models import Kelurahan
+
         kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
         if kelurahan and kelurahan.kecamatan and kelurahan.kecamatan.kota and kelurahan.kecamatan.kota.provinsi:
-            return (f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - "
-                    f"{kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}")
+            return (
+                f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - "
+                f"{kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}"
+            )
         else:
             return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Chart(TimeStampedModel):
-    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='charts')
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name="charts")
     name = models.CharField(max_length=100)
     count = models.IntegerField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.count}"
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Image(TimeStampedModel):
-    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='images')
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name="images")
     url = models.URLField(null=True, blank=True)
-    image = models.ImageField(upload_to='images/', null=True, blank=True)
+    image = models.ImageField(upload_to="images/", null=True, blank=True)
 
     # def __str__(self):
     #     return self.url
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Administration(TimeStampedModel):
-    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='administrations')
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name="administrations")
     suara_sah = models.IntegerField(null=True, blank=True)
     suara_total = models.IntegerField(null=True, blank=True)
     pemilih_dpt_l = models.IntegerField(null=True, blank=True)
@@ -71,17 +76,18 @@ class Administration(TimeStampedModel):
         return f"{self.suara_sah} - {self.suara_total}"
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class AnomalyDetection(TimeStampedModel):
-    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name='anomalies')
+    tps = models.ForeignKey(Tps, on_delete=models.CASCADE, related_name="anomalies")
     url = models.URLField(null=True, blank=True)
     message = models.TextField(null=True, blank=True)
     type = models.CharField(max_length=100, null=True, blank=True)
+    is_reported = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.url}"
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)

@@ -10,11 +10,11 @@ class Provinsi(TimeStampedModel):
         return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Kota(TimeStampedModel):
-    provinsi = models.ForeignKey(Provinsi, on_delete=models.CASCADE, related_name='kota')
+    provinsi = models.ForeignKey(Provinsi, on_delete=models.CASCADE, related_name="kota")
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
 
@@ -22,11 +22,11 @@ class Kota(TimeStampedModel):
         return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Kecamatan(TimeStampedModel):
-    kota = models.ForeignKey(Kota, on_delete=models.CASCADE, related_name='kecamatan')
+    kota = models.ForeignKey(Kota, on_delete=models.CASCADE, related_name="kecamatan")
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
 
@@ -34,11 +34,11 @@ class Kecamatan(TimeStampedModel):
         return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ("-created",)
 
 
 class Kelurahan(TimeStampedModel):
-    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan', null=True, blank=True)
+    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name="kelurahan", null=True, blank=True)
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
 
@@ -46,4 +46,4 @@ class Kelurahan(TimeStampedModel):
         return self.name
 
     class Meta:
-        ordering = ('created',)
+        ordering = ("created",)
