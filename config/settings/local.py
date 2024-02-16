@@ -12,7 +12,7 @@ SECRET_KEY = env(
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "upright-infinite-shiner.ngrok-free.app", "jagapemilu.mufakat.id",
-                 "http://217.76.58.132:8000/"]
+                 "217.76.58.132"]
 
 # CACHES
 # ------------------------------------------------------------------------------
