@@ -31,7 +31,7 @@ certificatesResolvers:
 http:
   routers:
     web-secure-router:
-      rule: 'Host(`mufakat.id`) || Host(`www.mufakat.id`)'
+      rule: 'Host(`jagapemilu.mufakat.id`)'
       entryPoints:
         - web-secure
       middlewares:
@@ -42,7 +42,7 @@ http:
         certResolver: letsencrypt
 
     flower-secure-router:
-      rule: 'Host(`mufakat.id`)'
+      rule: 'Host(`flower.mufakat.id`)'
       entryPoints:
         - flower
       service: flower
@@ -51,7 +51,7 @@ http:
         certResolver: letsencrypt
 
     web-media-router:
-      rule: '(Host(`mufakat.id`) || Host(`www.mufakat.id`)) && PathPrefix(`/media/`)'
+      rule: 'Host(`jagapemilu.mufakat.id`) && PathPrefix(`/media/`)'
       entryPoints:
         - web-secure
       middlewares:
