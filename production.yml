@@ -67,8 +67,6 @@ services:
   flower:
     <<: *django
     image: pemilu_production_flower
-    ports:
-      - '5555:5555'
     command: /start-flower
 
   nginx:
