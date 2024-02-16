@@ -1,6 +1,6 @@
 # jagapemilu
 
-Pemilu Bersih
+Jaga Pemilu
 
 [![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
@@ -44,6 +44,33 @@ To run the tests, check your test coverage, and generate an HTML coverage report
 ### Live reloading and Sass CSS compilation
 
 Moved to [Live reloading and SASS compilation](https://cookiecutter-django.readthedocs.io/en/latest/developing-locally.html#sass-compilation-live-reloading).
+
+### Celery
+
+This app comes with Celery.
+
+To run a celery worker:
+
+```bash
+cd pemilu
+celery -A config.celery_app worker -l info
+```
+
+Please note: For Celery's import magic to work, it is important _where_ the celery commands are run. If you are in the same folder with _manage.py_, you should be right.
+
+To run [periodic tasks](https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html), you'll need to start the celery beat scheduler service. You can start it as a standalone process:
+
+```bash
+cd pemilu
+celery -A config.celery_app beat
+```
+
+or you can embed the beat service inside a worker with the `-B` option (not recommended for production use):
+
+```bash
+cd pemilu
+celery -A config.celery_app worker -B -l info
+```
 
 ## Deployment
 

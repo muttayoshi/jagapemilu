@@ -6,6 +6,8 @@
         <option name="services">
           <list>
             <option value="django"/>
+            <option value="celeryworker"/>
+            <option value="celerybeat"/>
           </list>
         </option>
         <option name="sourceFilePath" value="local.yml"/>

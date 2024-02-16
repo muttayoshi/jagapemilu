@@ -12,11 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from pemilu.users.forms import UserAdminChangeForm
 from pemilu.users.models import User
 from pemilu.users.tests.factories import UserFactory
-from pemilu.users.views import (
-    UserRedirectView,
-    UserUpdateView,
-    user_detail_view,
-)
+from pemilu.users.views import UserRedirectView, UserUpdateView, user_detail_view
 
 pytestmark = pytest.mark.django_db
 

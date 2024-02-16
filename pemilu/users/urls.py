@@ -1,10 +1,6 @@
 from django.urls import path
 
-from pemilu.users.views import (
-    user_detail_view,
-    user_redirect_view,
-    user_update_view,
-)
+from pemilu.users.views import user_detail_view, user_redirect_view, user_update_view
 
 app_name = "users"
 urlpatterns = [
