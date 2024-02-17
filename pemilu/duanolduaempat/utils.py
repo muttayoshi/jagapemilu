@@ -182,7 +182,7 @@ def anomaly_detection():
                         tps=t,
                         url=t.url,
                         message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                        type="Human Error",
+                        type="Overload",
                     )
                     t.has_anomaly = True
                     t.save()
@@ -191,7 +191,7 @@ def anomaly_detection():
                         {
                             "url": t.url,
                             "message": f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                            "type": "Human Error",
+                            "type": "Overload",
                         }
                     )
                 if c.count:
