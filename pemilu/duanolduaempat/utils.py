@@ -102,6 +102,7 @@ def crawling_kpu(province_code):
 
 def anomaly_detection():
     result = []
+    AnomalyDetection.objects.all().delete()
     tps = Tps.objects.all()
     error = 0
     for t in tps:
