@@ -1,5 +1,5 @@
 import requests
-from .models import Kecamatan, Kelurahan, Kota, Provinsi
+from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatSatu, TingkatDua, TingkatTiga, TingkatEmpat
 
 
 def get_data_from_csv(filename):
@@ -104,3 +104,50 @@ def update_data_province():
         update_data_kota(prov["kode"], provinsi.id)
 
 
+def update_data_luar_negeri_tingkat_satu():
+    TingkatSatu.objects.update_or_create(
+        code="99",
+        defaults={"name": "LUAR NEGERI"},
+    )
+
+    update_data_luar_negeri_tingkat_dua("99")
+
+def update_data_luar_negeri_tingkat_dua(satu_code):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{satu_code}.json"
+    payload = {}
+    headers = {}
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for dua in response.json():
+        TingkatDua.objects.update_or_create(
+            code=dua["kode"],
+            defaults={"name": dua["nama"], "tingkat_satu": TingkatSatu.objects.get(code=satu_code)},
+        )
+        update_data_luar_negeri_tingkat_tiga(satu_code, dua["kode"])
+
+
+def update_data_luar_negeri_tingkat_tiga(satu_code, dua_code):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{satu_code}/{dua_code}.json"
+    payload = {}
+    headers = {}
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for tiga in response.json():
+        TingkatTiga.objects.update_or_create(
+            code=tiga["kode"],
+            defaults={"name": tiga["nama"], "tingkat_dua": TingkatDua.objects.get(code=dua_code)},
+        )
+        update_data_luar_negeri_tingkat_empat(satu_code, dua_code, tiga["kode"])
+
+
+def update_data_luar_negeri_tingkat_empat(satu_code, dua_code, tiga_code):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{satu_code}/{dua_code}/{tiga_code}.json"
+    payload = {}
+    headers = {}
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for empat in response.json():
+        TingkatEmpat.objects.update_or_create(
+            code=empat["kode"],
+            defaults={"name": empat["nama"], "tingkat_tiga": TingkatTiga.objects.get(code=tiga_code)},
+        )
