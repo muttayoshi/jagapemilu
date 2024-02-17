@@ -1,3 +1,4 @@
+import requests
 from .models import Kecamatan, Kelurahan, Kota, Provinsi
 
 
@@ -29,3 +30,77 @@ def get_data_from_csv(filename):
                     name=row[1], code=row[0].replace(".", ""), kecamatan=kecamatan
                 )
                 print(f"Kelurahan: {kelurahan}, Created: {klcreated}")
+
+
+def update_data_kelurahan(provinsi_kode, kota_kode, kecamatan_kode, kecamatan_id):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{provinsi_kode}/{kota_kode}/{kecamatan_kode}.json"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for data in response.json():
+        kecamatan = Kecamatan.objects.get(code=kecamatan_kode)
+        Kelurahan.objects.update_or_create(
+            code=data["kode"],
+            # kecamatan=kecamatan_id,
+            defaults={"name": data["nama"], "kecamatan": kecamatan},
+        )
+
+
+def update_data_kecamatan(provinsi_kode, kota_kode, kota_id):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{provinsi_kode}/{kota_kode}.json"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for kec in response.json():
+        kota = Kota.objects.get(code=kota_kode)
+        kecamatan, created = Kecamatan.objects.update_or_create(
+            code=kec["kode"],
+            # kota=kota_id,
+            defaults={"name": kec["nama"], "kota": kota},
+        )
+        print(f"{created}, {kecamatan.id} {kecamatan.name} {kec['kode']}")
+        update_data_kelurahan(provinsi_kode, kota_kode, kec["kode"], kecamatan.id)
+
+
+def update_data_kota(provinsi_kode, provinsi_id):
+    url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{provinsi_kode}.json"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for city in response.json():
+        provinsi = Provinsi.objects.get(code=provinsi_kode)
+        kota, created = Kota.objects.update_or_create(
+            code=city["kode"],
+            # provinsi=provinsi_id,
+            defaults={"name": city["nama"], "provinsi": provinsi},
+        )
+        print(f"{created}, {kota.id} {kota.name} {city['kode']}")
+        update_data_kecamatan(provinsi_kode, city["kode"], kota.id)
+
+
+def update_data_province():
+    url = "https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/0.json"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    for prov in response.json():
+        provinsi, created = Provinsi.objects.update_or_create(
+            code=prov["kode"],
+            defaults={"name": prov["nama"]},
+        )
+        print(f"{created}, {provinsi.id} {provinsi.name} {prov['kode']}")
+        update_data_kota(prov["kode"], provinsi.id)
+
+
