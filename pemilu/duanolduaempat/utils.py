@@ -1,7 +1,8 @@
 import requests
+from django.db.models import Sum
 
 from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Tps
-from pemilu.locations.models import Kelurahan, Provinsi
+from pemilu.locations.models import Kelurahan
 
 
 def crawling_kpu(province_code):
@@ -100,8 +101,8 @@ def crawling_kpu(province_code):
 
 
 def anomaly_detection():
+    result = []
     tps = Tps.objects.all()
-
     error = 0
     for t in tps:
         if t.status_adm and t.status_suara:
@@ -121,12 +122,14 @@ def anomaly_detection():
                     )
                     t.has_anomaly = True
                     t.save()
-                    print(
-                        f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} "
-                        f"- Anomaly Detected (Human Error)"
+                    result.append(
+                        {
+                            "url": t.url,
+                            "message": f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected",
+                            "type": "System Error",
+                        }
                     )
                     error += 1
-                    print(f"TPS: {t.url}")
 
             count = 0
             for c in charts:
@@ -140,8 +143,13 @@ def anomaly_detection():
                     t.has_anomaly = True
                     t.save()
                     error += 1
-                    print(f"Count: {c.count} higher than 300 - Anomaly Detected (Curang)")
-                    print(f"TPS: {t.url}")
+                    result.append(
+                        {
+                            "url": t.url,
+                            "message": f"Count: {c.count} higher than 300 - Anomaly Detected",
+                            "type": "Human Error",
+                        }
+                    )
                 if c.count:
                     count += c.count
 
@@ -155,8 +163,74 @@ def anomaly_detection():
                 error += 1
                 t.has_anomaly = True
                 t.save()
-                print(f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected (Human Error)")
-                print(f"TPS: {t.url}")
+                result.append(
+                    {
+                        "url": t.url,
+                        "message": f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected",
+                        "type": "System Error",
+                    }
+                )
 
     print("Anomaly Detection Done")
     print(f"Total Anomaly Detected: {error}")
+    return {"message": "Anomaly Detection Done", "total_anomaly_detected": error, "result": result}
+
+
+def calculate_percentage_detail():
+    tps_correct = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=False)
+    A100025 = Chart.objects.filter(
+        name="100025", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
+    ).aggregate(Sum("count"))
+    A100026 = Chart.objects.filter(
+        name="100026", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
+    ).aggregate(Sum("count"))
+    A100027 = Chart.objects.filter(
+        name="100027", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
+    ).aggregate(Sum("count"))
+    total = A100025.get("count__sum") + A100026.get("count__sum") + A100027.get("count__sum")
+    anies = A100025.get("count__sum")
+
+    prabowo = A100026.get("count__sum")
+
+    ganjar = A100027.get("count__sum")
+
+    anies_p = f"{(anies / total) * 100} %"
+
+    prabowo_p = f"{(prabowo / total) * 100} %"
+
+    ganjar_p = f"{(ganjar / total) * 100}%"
+
+    result = {
+        "tps_correct": tps_correct.count(),
+        "total_suara": total,
+        "suara_anies": anies,
+        "suara_prabowo": prabowo,
+        "suara_ganjar": ganjar,
+        "percentage_anies": anies_p,
+        "percentage_prabowo": prabowo_p,
+        "percentage_ganjar": ganjar_p,
+    }
+    return result
+
+
+def calculate_percentage():
+    tps_correct = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=False).count()
+    candidates = ["100025", "100026", "100027"]
+    votes = {
+        candidate: Chart.objects.filter(
+            name=candidate, tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
+        )
+        .aggregate(Sum("count"))
+        .get("count__sum")
+        for candidate in candidates
+    }
+    total_votes = sum(votes.values())
+    percentages = {candidate: f"{(votes[candidate] / total_votes) * 100} %" for candidate in candidates}
+
+    result = {
+        "tps_correct": tps_correct,
+        "total_suara": total_votes,
+    }
+    result.update(votes)
+    result.update(percentages)
+    return result

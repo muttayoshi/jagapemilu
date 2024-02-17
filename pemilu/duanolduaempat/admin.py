@@ -39,4 +39,3 @@ class AnomalyDetectionAdmin(admin.ModelAdmin):
     list_filter = ("type",)
     search_fields = ("tps", "message")
     list_per_page = 25
-

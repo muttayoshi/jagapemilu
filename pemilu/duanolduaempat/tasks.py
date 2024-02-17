@@ -1,7 +1,6 @@
-from pemilu.locations.models import Provinsi
-from pemilu.duanolduaempat.utils import crawling_kpu, anomaly_detection
-
 from config import celery_app
+from pemilu.duanolduaempat.utils import anomaly_detection, crawling_kpu
+from pemilu.locations.models import Provinsi
 
 
 @celery_app.task()

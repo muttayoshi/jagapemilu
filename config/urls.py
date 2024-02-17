@@ -15,6 +15,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path("users/", include("pemilu.users.urls", namespace="users")),
+    path("realcount/", include("pemilu.duanolduaempat.urls", namespace="realcount")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

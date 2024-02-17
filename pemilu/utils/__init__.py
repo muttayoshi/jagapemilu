@@ -1,3 +1,7 @@
+import pandas as pd
+from django.http import HttpResponse
+
+
 def generate_report(data: dict, file_name: str) -> HttpResponse:
     df = pd.DataFrame(data)
     resp = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
