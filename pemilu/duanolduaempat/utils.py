@@ -152,7 +152,8 @@ def anomaly_detection():
                     AnomalyDetection.objects.get_or_create(
                         tps=t,
                         url=t.url,
-                        message=f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - Anomaly Detected",
+                        message=f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
+                                f"Anomaly Detected",
                         type="System Error",
                     )
                     t.has_anomaly = True
@@ -160,7 +161,7 @@ def anomaly_detection():
                     result.append(
                         {
                             "url": t.url,
-                            "message": f"Suara Sah: {suara_sah} higher than Suara Total: {suara_total} - "
+                            "message": f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
                             f"Anomaly Detected",
                             "type": "System Error",
                         }
@@ -170,10 +171,18 @@ def anomaly_detection():
             count = 0
             for c in charts:
                 if c.count and c.count > 300:
+                    if c.name == "100025":
+                        paslon_name = "Anies"
+                    elif c.name == "100026":
+                        paslon_name = "Prabowo"
+                    elif c.name == "100027":
+                        paslon_name = "Ganjar"
+                    else:
+                        paslon_name = "Unknown"
                     AnomalyDetection.objects.get_or_create(
                         tps=t,
                         url=t.url,
-                        message=f"Count: {c.count} higher than 300 - Anomaly Detected",
+                        message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
                         type="Human Error",
                     )
                     t.has_anomaly = True
@@ -182,7 +191,7 @@ def anomaly_detection():
                     result.append(
                         {
                             "url": t.url,
-                            "message": f"Count: {c.count} higher than 300 - Anomaly Detected",
+                            "message": f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
                             "type": "Human Error",
                         }
                     )
@@ -193,7 +202,7 @@ def anomaly_detection():
                 AnomalyDetection.objects.get_or_create(
                     tps=t,
                     url=t.url,
-                    message=f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected",
+                    message=f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
                     type="System Error",
                 )
                 error += 1
@@ -202,12 +211,11 @@ def anomaly_detection():
                 result.append(
                     {
                         "url": t.url,
-                        "message": f"Count: {count} does not match with Suara Sah: {suara_sah} - Anomaly Detected",
+                        "message": f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
                         "type": "System Error",
                     }
                 )
 
-    print("Anomaly Detection Done")
     print(f"Total Anomaly Detected: {error}")
     return {"message": "Anomaly Detection Done", "total_anomaly_detected": error, "result": result}
 

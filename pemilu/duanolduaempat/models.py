@@ -110,6 +110,15 @@ class Report(TimeStampedModel):
     class Meta:
         ordering = ("-created",)
 
+    def paslon_satu_percentage(self):
+        return f"{(self.paslon_satu / self.total_suara) * 100} %"
+
+    def paslon_dua_percentage(self):
+        return f"{(self.paslon_dua / self.total_suara) * 100} %"
+
+    def paslon_tiga_percentage(self):
+        return f"{(self.paslon_tiga / self.total_suara) * 100} %"
+
 
 class ReportDetail(TimeStampedModel):
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="details")
@@ -127,3 +136,12 @@ class ReportDetail(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+
+    def paslon_satu_percentage(self):
+        return f"{(self.paslon_satu / self.total_suara) * 100} %"
+
+    def paslon_dua_percentage(self):
+        return f"{(self.paslon_dua / self.total_suara) * 100} %"
+
+    def paslon_tiga_percentage(self):
+        return f"{(self.paslon_tiga / self.total_suara) * 100} %"

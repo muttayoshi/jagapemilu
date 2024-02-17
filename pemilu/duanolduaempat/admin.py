@@ -43,25 +43,16 @@ class AnomalyDetectionAdmin(admin.ModelAdmin):
 
 class ReportDetailInline(admin.TabularInline):
     model = ReportDetail
+    list_display = ("province", "total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga")
     extra = 0
     ordering = ("-created",)
-    # has_add_permission = False
+    # readonly_fields = ("paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")
 
 
 @admin.register(Report)
-class ReportDetailAdmin(admin.ModelAdmin):
-    """
-    name = models.CharField(max_length=100)
-    total_suara = models.IntegerField(null=True, blank=True)
-    total_tps = models.IntegerField(null=True, blank=True)
-    paslon_satu = models.IntegerField(null=True, blank=True)
-    paslon_dua = models.IntegerField(null=True, blank=True)
-    paslon_tiga = models.IntegerField(null=True, blank=True)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ("total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga", "paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")
 
-    """
-
-    list_display = ("total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga")
-    # list_filter = ("report",)
-    # search_fields = ("tps", "report", "message")
     list_per_page = 25
     inlines = [ReportDetailInline]
+    readonly_fields = ("paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from pemilu.duanolduaempat.models import Report
 
 
 class PercentageSerializer(serializers.Serializer):
@@ -18,3 +19,16 @@ class DetailSerializer(serializers.Serializer):
     percentage_anies = serializers.CharField()
     percentage_prabowo = serializers.CharField()
     percentage_ganjar = serializers.CharField()
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = ["total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga"]
+        read_only_fields = ["paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage"]
+
+        extra_kwargs = {
+            "paslon_satu_percentage": {"source": "paslon_satu_percentage"},
+            "paslon_dua_percentage": {"source": "paslon_dua_percentage"},
+            "paslon_tiga_percentage": {"source": "paslon_tiga_percentage"},
+        }
