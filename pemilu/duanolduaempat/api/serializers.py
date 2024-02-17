@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from pemilu.duanolduaempat.models import Report, ReportDetail
 
 
@@ -44,6 +45,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
 
 class ReportSerializer(serializers.ModelSerializer):
     details = ReportDetailSerializer(many=True, read_only=True)
+
     class Meta:
         model = Report
         fields = ["total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga", "details"]

@@ -2,16 +2,17 @@ import json
 
 from django.http import HttpResponse
 from rest_framework.generics import RetrieveAPIView
-
-from pemilu.duanolduaempat.utils import anomaly_detection, calculate_percentage, calculate_percentage_detail
-from pemilu.duanolduaempat.api.serializers import ReportSerializer
-from pemilu.duanolduaempat.models import Report
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-class PercentageView(RetrieveAPIView):
+from pemilu.duanolduaempat.api.serializers import ReportSerializer
+from pemilu.duanolduaempat.models import Report
+from pemilu.duanolduaempat.utils import anomaly_detection, calculate_percentage_detail, calculate_province_report
+
+
+class UpdateReportDetailView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-        data = calculate_percentage()
+        data = calculate_province_report()
         return HttpResponse(
             content=json.dumps(data),
             status=200,

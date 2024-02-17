@@ -51,7 +51,16 @@ class ReportDetailInline(admin.TabularInline):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ("total_suara", "total_tps", "paslon_satu", "paslon_dua", "paslon_tiga", "paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")
+    list_display = (
+        "total_suara",
+        "total_tps",
+        "paslon_satu",
+        "paslon_dua",
+        "paslon_tiga",
+        "paslon_satu_percentage",
+        "paslon_dua_percentage",
+        "paslon_tiga_percentage",
+    )
 
     list_per_page = 25
     inlines = [ReportDetailInline]
