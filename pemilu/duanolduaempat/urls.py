@@ -1,6 +1,6 @@
 from django.urls import path
-from pemilu.duanolduaempat.api.views import PercentageView, DetailView, AnomalyDetectionView
 
+from pemilu.duanolduaempat.api.views import AnomalyDetectionView, DetailView, PercentageView
 
 app_name = "realcount"
 

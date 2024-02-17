@@ -1,17 +1,9 @@
 import json
 
-from rest_framework import views
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.generics import (
-    RetrieveAPIView,
-)
+from django.http import HttpResponse
+from rest_framework.generics import RetrieveAPIView
 
-from .serializers import PercentageSerializer, DetailSerializer
-from pemilu.duanolduaempat.utils import calculate_percentage, calculate_percentage_detail, anomaly_detection
-from django.http import FileResponse, HttpResponse
+from pemilu.duanolduaempat.utils import anomaly_detection, calculate_percentage, calculate_percentage_detail
 
 
 class PercentageView(RetrieveAPIView):
@@ -22,6 +14,7 @@ class PercentageView(RetrieveAPIView):
             status=200,
             content_type="application/json",
         )
+
 
 class DetailView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):

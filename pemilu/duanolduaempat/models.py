@@ -10,6 +10,9 @@ class Tps(TimeStampedModel):
     status_adm = models.BooleanField(default=False)
     url = models.URLField(null=True, blank=True)
     has_anomaly = models.BooleanField(default=False)
+    province = models.ForeignKey(
+        "locations.Provinsi", on_delete=models.CASCADE, related_name="tps", null=True, blank=True
+    )
 
     def __str__(self):
         from pemilu.locations.models import Kelurahan
@@ -88,6 +91,39 @@ class AnomalyDetection(TimeStampedModel):
 
     def __str__(self):
         return f"{self.url}"
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class Report(TimeStampedModel):
+    name = models.CharField(max_length=100)
+    total_suara = models.IntegerField(null=True, blank=True)
+    total_tps = models.IntegerField(null=True, blank=True)
+    paslon_satu = models.IntegerField(null=True, blank=True)
+    paslon_dua = models.IntegerField(null=True, blank=True)
+    paslon_tiga = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.total_suara}"
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class ReportDetail(TimeStampedModel):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="details")
+    province = models.ForeignKey(
+        "locations.Provinsi", on_delete=models.CASCADE, related_name="reports", null=True, blank=True
+    )
+    total_suara = models.IntegerField(null=True, blank=True)
+    total_tps = models.IntegerField(null=True, blank=True)
+    paslon_satu = models.IntegerField(null=True, blank=True)
+    paslon_dua = models.IntegerField(null=True, blank=True)
+    paslon_tiga = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.total_suara}"
 
     class Meta:
         ordering = ("-created",)
