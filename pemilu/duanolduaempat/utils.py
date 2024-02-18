@@ -134,7 +134,6 @@ def crawling_kpu(province_code):
 
 
 def anomaly_detection():
-    result = []
     AnomalyDetection.objects.all().delete()
     tps = Tps.objects.all()
     error = 0
@@ -153,18 +152,10 @@ def anomaly_detection():
                         url=t.url,
                         message=f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
                         f"Anomaly Detected",
-                        type="System Error",
+                        type="Suara sah lebih besar dari total suara",
                     )
                     t.has_anomaly = True
                     t.save()
-                    result.append(
-                        {
-                            "url": t.url,
-                            "message": f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
-                            f"Anomaly Detected",
-                            "type": "System Error",
-                        }
-                    )
                     error += 1
 
             count = 0
@@ -182,18 +173,11 @@ def anomaly_detection():
                         tps=t,
                         url=t.url,
                         message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                        type="Overload",
+                        type=f"Overload {paslon_name}",
                     )
                     t.has_anomaly = True
                     t.save()
                     error += 1
-                    result.append(
-                        {
-                            "url": t.url,
-                            "message": f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                            "type": "Overload",
-                        }
-                    )
                 if c.count:
                     count += c.count
 
@@ -202,21 +186,13 @@ def anomaly_detection():
                     tps=t,
                     url=t.url,
                     message=f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
-                    type="System Error",
+                    type="Jumlah suara sah tidak cocok",
                 )
                 error += 1
                 t.has_anomaly = True
                 t.save()
-                result.append(
-                    {
-                        "url": t.url,
-                        "message": f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
-                        "type": "System Error",
-                    }
-                )
 
-    print(f"Total Anomaly Detected: {error}")
-    return {"message": "Anomaly Detection Done", "total_anomaly_detected": error, "result": result}
+    return {"message": "Anomaly Detection Done", "total_anomaly_detected": error}
 
 
 def calculate_percentage_detail():
