@@ -8,6 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from pemilu.duanolduaempat.api.serializers import ReportSerializer
 from pemilu.duanolduaempat.models import Report
 from pemilu.duanolduaempat.utils import anomaly_detection, calculate_percentage_detail, calculate_province_report
+from pemilu.duanolduaempat.tasks import run_anomaly_detection
 
 
 class UpdateReportDetailView(RetrieveAPIView):
@@ -32,9 +33,10 @@ class DetailView(RetrieveAPIView):
 
 class AnomalyDetectionView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-        data = anomaly_detection()
+        # data = anomaly_detection()
+        run_anomaly_detection.delay()
         return HttpResponse(
-            content=json.dumps(data),
+            content=json.dumps({"message": "Anomaly detection is running"}),
             status=200,
             content_type="application/json",
         )
