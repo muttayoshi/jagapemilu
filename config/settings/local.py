@@ -18,6 +18,10 @@ ALLOWED_HOSTS = [
     "upright-infinite-shiner.ngrok-free.app",
     "jagapemilu.mufakat.id",
     "217.76.58.132",
+    "167.86.119.246",
+    "167.86.122.231",
+    "167.86.83.82",
+    "167.86.83.20"
 ]
 
 # CACHES
