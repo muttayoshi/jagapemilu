@@ -1,6 +1,6 @@
 from config import celery_app
 from celery import shared_task
-from pemilu.duanolduaempat.utils import anomaly_detection, crawling_kpu
+from pemilu.duanolduaempat.utils import anomaly_detection, crawling_kpu, calculate_province_report
 from pemilu.locations.models import Provinsi
 
 
@@ -81,10 +81,17 @@ def crawling_select_province(province_code):
     provinsi = Provinsi.objects.filter(code__startswith=province_code).all()
     for p in provinsi:
         crawling_kpu(p.code)
-    return "crawling_papua"
+    return f"crawling_province_code{province_code}"
 
 
 @celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
 def run_anomaly_detection():
     anomaly_detection()
     return "run_anomaly_detection"
+
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def run_calculate_province_report():
+    calculate_province_report()
+    return "run_calculate_province_report"
+    
