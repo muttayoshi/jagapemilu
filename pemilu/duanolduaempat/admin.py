@@ -7,7 +7,7 @@ class ChartInline(admin.TabularInline):
     model = Chart
     extra = 0
     fieldsets = [
-        (None, {"fields": ["name", "count"]}),
+        (None, {"fields": ["name", "count", "ts"]}),
     ]
     ordering = ("name",)
 
