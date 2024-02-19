@@ -13,7 +13,7 @@ from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_pro
 
 class UpdateReportDetailView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-        data = run_calculate_province_report().delay()
+        data = run_calculate_province_report.delay()
         return HttpResponse(
             content=json.dumps({"message": "Calculate running in background process"}),
             status=200,
