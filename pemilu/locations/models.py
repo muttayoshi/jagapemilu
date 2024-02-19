@@ -47,3 +47,50 @@ class Kelurahan(TimeStampedModel):
 
     class Meta:
         ordering = ("created",)
+
+
+class TingkatSatu(TimeStampedModel):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class TingkatDua(TimeStampedModel):
+    tingkat_satu = models.ForeignKey(TingkatSatu, on_delete=models.CASCADE, related_name="tingkat_dua")
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class TingkatTiga(TimeStampedModel):
+    tingkat_dua = models.ForeignKey(TingkatDua, on_delete=models.CASCADE, related_name="tingkat_tiga")
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class TingkatEmpat(TimeStampedModel):
+    tingkat_tiga = models.ForeignKey(TingkatTiga, on_delete=models.CASCADE, related_name="tingkat_empat")
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ("-created",)

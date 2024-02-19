@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Kecamatan, Kelurahan, Kota, Provinsi
+from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatSatu, TingkatDua, TingkatTiga, TingkatEmpat
 
 
 @admin.register(Provinsi)
@@ -28,4 +28,32 @@ class KecamatanAdmin(admin.ModelAdmin):
 class KelurahanAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "kecamatan", "created", "modified")
     search_fields = ("name", "code", "kecamatan")
+    list_filter = ("created", "modified")
+
+
+@admin.register(TingkatSatu)
+class TingkatSatuAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "created", "modified")
+    search_fields = ("name", "code")
+    list_filter = ("created", "modified")
+
+
+@admin.register(TingkatDua)
+class TingkatDuaAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "tingkat_satu", "created", "modified")
+    search_fields = ("name", "code", "tingkat_satu")
+    list_filter = ("created", "modified")
+
+
+@admin.register(TingkatTiga)
+class TingkatTigaAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "tingkat_dua", "created", "modified")
+    search_fields = ("name", "code", "tingkat_dua")
+    list_filter = ("created", "modified")
+
+
+@admin.register(TingkatEmpat)
+class TingkatEmpatAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "tingkat_tiga", "created", "modified")
+    search_fields = ("name", "code", "tingkat_tiga")
     list_filter = ("created", "modified")

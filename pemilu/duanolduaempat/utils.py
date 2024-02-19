@@ -1,15 +1,15 @@
 import requests
 from django.db.models import Sum
 
-from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Tps
-from pemilu.locations.models import Kelurahan
+from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps
+from pemilu.locations.models import Kelurahan, Provinsi
 
 
 def crawling_kpu(province_code):
     list_province_code = province_code.split(",")
     for province in list_province_code:
+        prov_id = Provinsi.objects.get(code=province)
         kelurahan = Kelurahan.objects.filter(code__startswith=province).all()
-        print(kelurahan.first())
 
         for k in kelurahan:
             kelurahan = k.code
@@ -44,52 +44,85 @@ def crawling_kpu(province_code):
                                 "status_adm": data["status_adm"],
                                 "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
                                 f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}",
+                                "province": prov_id,
                             },
                         )
 
-                        print(f"TPS: {datatps}, Created: {created}")
+                        if created:
+                            print(f"TPS: {datatps}")
 
-                        data_chart = data["chart"]
-                        if data_chart:
-                            for key, value in data_chart.items():
-                                # Chart.objects.update_or_create(
-                                #     tps=datatps,
-                                #     name=key,
-                                #     defaults={
-                                #         'count': value
-                                #     }
-                                # )
-                                Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
-                                Chart.objects.create(tps=datatps, name=key, count=value)
+                            data_chart = data["chart"]
+                            if data_chart:
+                                for key, value in data_chart.items():
+                                    Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
+                                    Chart.objects.create(tps=datatps, name=key, count=value)
 
-                        data_image = data["images"]
-                        for image in data_image:
-                            Image.objects.get_or_create(tps=datatps, url=image)
+                            data_image = data["images"]
+                            for image in data_image:
+                                Image.objects.get_or_create(tps=datatps, url=image)
 
-                        if data.get("administrasi"):
-                            value = data.get("administrasi")
-                            Administration.objects.update_or_create(
-                                tps=datatps,
-                                defaults={
-                                    "suara_sah": value.get("suara_sah"),
-                                    "suara_total": value.get("suara_total"),
-                                    "pemilih_dpt_l": value.get("pemilih_dpt_l"),
-                                    "pemilih_dpt_p": value.get("pemilih_dpt_p"),
-                                    "pengguna_dpt_j": value.get("pengguna_dpt_j"),
-                                    "pengguna_dpt_l": value.get("pengguna_dpt_l"),
-                                    "pengguna_dpt_p": value.get("pengguna_dpt_p"),
-                                    "pengguna_dptb_j": value.get("pengguna_dptb_j"),
-                                    "pengguna_dptb_l": value.get("pengguna_dptb_l"),
-                                    "pengguna_dptb_p": value.get("pengguna_dptb_p"),
-                                    "suara_tidak_sah": value.get("suara_tidak_sah"),
-                                    "pengguna_total_j": value.get("pengguna_total_j"),
-                                    "pengguna_total_l": value.get("pengguna_total_l"),
-                                    "pengguna_total_p": value.get("pengguna_total_p"),
-                                    "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
-                                    "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
-                                    "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
-                                },
-                            )
+                            if data.get("administrasi"):
+                                value = data.get("administrasi")
+                                Administration.objects.update_or_create(
+                                    tps=datatps,
+                                    defaults={
+                                        "suara_sah": value.get("suara_sah"),
+                                        "suara_total": value.get("suara_total"),
+                                        "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                                        "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                                        "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                                        "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                                        "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                                        "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                                        "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                                        "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                                        "suara_tidak_sah": value.get("suara_tidak_sah"),
+                                        "pengguna_total_j": value.get("pengguna_total_j"),
+                                        "pengguna_total_l": value.get("pengguna_total_l"),
+                                        "pengguna_total_p": value.get("pengguna_total_p"),
+                                        "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                                        "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                                        "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+                                    },
+                                )
+                        else:
+                            if datatps.has_anomaly:
+                                print(f"TPS: {datatps}")
+
+                                data_chart = data["chart"]
+                                if data_chart:
+                                    for key, value in data_chart.items():
+                                        Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
+                                        Chart.objects.create(tps=datatps, name=key, count=value)
+
+                                data_image = data["images"]
+                                for image in data_image:
+                                    Image.objects.get_or_create(tps=datatps, url=image)
+
+                                if data.get("administrasi"):
+                                    value = data.get("administrasi")
+                                    Administration.objects.update_or_create(
+                                        tps=datatps,
+                                        defaults={
+                                            "suara_sah": value.get("suara_sah"),
+                                            "suara_total": value.get("suara_total"),
+                                            "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                                            "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                                            "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                                            "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                                            "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                                            "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                                            "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                                            "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                                            "suara_tidak_sah": value.get("suara_tidak_sah"),
+                                            "pengguna_total_j": value.get("pengguna_total_j"),
+                                            "pengguna_total_l": value.get("pengguna_total_l"),
+                                            "pengguna_total_p": value.get("pengguna_total_p"),
+                                            "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                                            "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                                            "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+                                        },
+                                    )
                     elif response.status_code == 404:
                         print("TPS NOT FOUND")
                         break
@@ -159,48 +192,13 @@ def anomaly_detection():
                 t.has_anomaly = True
                 t.save()
 
+    calculate_percentage_detail()
+
     return {"message": "Anomaly Detection Done", "total_anomaly_detected": error}
 
 
 def calculate_percentage_detail():
     tps_correct = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=False)
-    A100025 = Chart.objects.filter(
-        name="100025", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
-    ).aggregate(Sum("count"))
-    A100026 = Chart.objects.filter(
-        name="100026", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
-    ).aggregate(Sum("count"))
-    A100027 = Chart.objects.filter(
-        name="100027", tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
-    ).aggregate(Sum("count"))
-    total = A100025.get("count__sum") + A100026.get("count__sum") + A100027.get("count__sum")
-    anies = A100025.get("count__sum")
-
-    prabowo = A100026.get("count__sum")
-
-    ganjar = A100027.get("count__sum")
-
-    anies_p = f"{(anies / total) * 100} %"
-
-    prabowo_p = f"{(prabowo / total) * 100} %"
-
-    ganjar_p = f"{(ganjar / total) * 100}%"
-
-    result = {
-        "tps_correct": tps_correct.count(),
-        "total_suara": total,
-        "suara_anies": anies,
-        "suara_prabowo": prabowo,
-        "suara_ganjar": ganjar,
-        "percentage_anies": anies_p,
-        "percentage_prabowo": prabowo_p,
-        "percentage_ganjar": ganjar_p,
-    }
-    return result
-
-
-def calculate_percentage():
-    tps_correct = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=False).count()
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
@@ -211,12 +209,67 @@ def calculate_percentage():
         for candidate in candidates
     }
     total_votes = sum(votes.values())
-    percentages = {candidate: f"{(votes[candidate] / total_votes) * 100} %" for candidate in candidates}
+    percentages = {f"{candidate}_p": f"{(votes[candidate] / total_votes) * 100} %" for candidate in candidates}
+
+    Report.objects.update_or_create(
+        name="Pemilu 2024",
+        defaults={
+            "total_suara": total_votes,
+            "total_tps": tps_correct.count(),
+            "paslon_satu": votes["100025"],
+            "paslon_dua": votes["100026"],
+            "paslon_tiga": votes["100027"],
+        },
+    )
 
     result = {
-        "tps_correct": tps_correct,
+        "tps_correct": tps_correct.count(),
         "total_suara": total_votes,
     }
     result.update(votes)
     result.update(percentages)
     return result
+
+
+def set_provice_code():
+    tps = Tps.objects.all()
+    for t in tps:
+        province_code = t.name[:2]
+        t.province = Provinsi.objects.get(code=province_code)
+        t.save()
+
+
+def calculate_province_report():
+    calculate_percentage_detail()
+    provinces = Provinsi.objects.all()
+    report = Report.objects.filter(name="Pemilu 2024").first()
+
+    for province in provinces:
+        tps_correct = Tps.objects.filter(
+            province=province, status_suara=True, status_adm=True, has_anomaly=False
+        ).all()
+
+        if report and tps_correct:
+            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+
+            for tps in tps_correct:
+                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+                if tps_count and tps_count > 0:
+                    total_tps += 1
+                    total_suara += tps_count
+                    paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+                    paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+                    paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+
+            ReportDetail.objects.update_or_create(
+                report=report,
+                province=province,
+                defaults={
+                    "total_suara": total_suara,
+                    "total_tps": total_tps,
+                    "paslon_satu": paslon_satu,
+                    "paslon_dua": paslon_dua,
+                    "paslon_tiga": paslon_tiga,
+                },
+            )
+    return {"message": "Percentage Detail Done"}
