@@ -250,5 +250,6 @@ def migration_ts():
             i.ts = t.ts
             i.save()
         administrations = t.administrations.last()
-        administrations.ts = t.ts
-        administrations.save()
+        if administrations:
+            administrations.ts = t.ts
+            administrations.save()
