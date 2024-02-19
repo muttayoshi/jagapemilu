@@ -1,6 +1,5 @@
 from config import celery_app
-from celery import shared_task
-from pemilu.duanolduaempat.utils import anomaly_detection, crawling_kpu, calculate_province_report
+from pemilu.duanolduaempat.utils import anomaly_detection, calculate_province_report, crawling_kpu, migration_ts
 from pemilu.locations.models import Provinsi
 
 
@@ -94,4 +93,9 @@ def run_anomaly_detection():
 def run_calculate_province_report():
     calculate_province_report()
     return "run_calculate_province_report"
-    
+
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def run_migration_ts():
+    migration_ts()
+    return "run_migration_ts"

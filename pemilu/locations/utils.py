@@ -1,5 +1,6 @@
 import requests
-from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatSatu, TingkatDua, TingkatTiga, TingkatEmpat
+
+from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatDua, TingkatEmpat, TingkatSatu, TingkatTiga
 
 
 def get_data_from_csv(filename):
@@ -111,6 +112,7 @@ def update_data_luar_negeri_tingkat_satu():
     )
 
     update_data_luar_negeri_tingkat_dua("99")
+
 
 def update_data_luar_negeri_tingkat_dua(satu_code):
     url = f"https://sirekap-obj-data.kpu.go.id/wilayah/pemilu/ppwp/{satu_code}.json"

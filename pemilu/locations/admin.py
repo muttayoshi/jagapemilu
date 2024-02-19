@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatSatu, TingkatDua, TingkatTiga, TingkatEmpat
+from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatDua, TingkatEmpat, TingkatSatu, TingkatTiga
 
 
 @admin.register(Provinsi)

@@ -19,9 +19,6 @@ def crawling_kpu(province_code):
 
             tps = "001"
             while True:
-                print(
-                    f"Provinsi: {provinsi}, Kota: {kota}, Kecamatan: {kecamatan}, Kelurahan: {kelurahan}, TPS: {tps}"
-                )
                 try:
                     url = (
                         f"https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/"
@@ -48,81 +45,47 @@ def crawling_kpu(province_code):
                             },
                         )
 
-                        if created:
-                            print(f"TPS: {datatps}")
+                        data_chart = data["chart"]
+                        if data_chart:
+                            for key, value in data_chart.items():
+                                Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
+                                Chart.objects.create(tps=datatps, name=key, count=value, ts=data["ts"])
 
-                            data_chart = data["chart"]
-                            if data_chart:
-                                for key, value in data_chart.items():
-                                    Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
-                                    Chart.objects.create(tps=datatps, name=key, count=value)
+                        data_image = data["images"]
+                        for image in data_image:
+                            Image.objects.update_or_create(
+                                tps=datatps,
+                                ts=data["ts"],
+                                defaults={
+                                    "url": image,
+                                },
+                            )
 
-                            data_image = data["images"]
-                            for image in data_image:
-                                Image.objects.get_or_create(tps=datatps, url=image)
-
-                            if data.get("administrasi"):
-                                value = data.get("administrasi")
-                                Administration.objects.update_or_create(
-                                    tps=datatps,
-                                    defaults={
-                                        "suara_sah": value.get("suara_sah"),
-                                        "suara_total": value.get("suara_total"),
-                                        "pemilih_dpt_l": value.get("pemilih_dpt_l"),
-                                        "pemilih_dpt_p": value.get("pemilih_dpt_p"),
-                                        "pengguna_dpt_j": value.get("pengguna_dpt_j"),
-                                        "pengguna_dpt_l": value.get("pengguna_dpt_l"),
-                                        "pengguna_dpt_p": value.get("pengguna_dpt_p"),
-                                        "pengguna_dptb_j": value.get("pengguna_dptb_j"),
-                                        "pengguna_dptb_l": value.get("pengguna_dptb_l"),
-                                        "pengguna_dptb_p": value.get("pengguna_dptb_p"),
-                                        "suara_tidak_sah": value.get("suara_tidak_sah"),
-                                        "pengguna_total_j": value.get("pengguna_total_j"),
-                                        "pengguna_total_l": value.get("pengguna_total_l"),
-                                        "pengguna_total_p": value.get("pengguna_total_p"),
-                                        "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
-                                        "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
-                                        "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
-                                    },
-                                )
-                        else:
-                            if datatps.has_anomaly:
-                                print(f"TPS: {datatps}")
-
-                                data_chart = data["chart"]
-                                if data_chart:
-                                    for key, value in data_chart.items():
-                                        Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
-                                        Chart.objects.create(tps=datatps, name=key, count=value)
-
-                                data_image = data["images"]
-                                for image in data_image:
-                                    Image.objects.get_or_create(tps=datatps, url=image)
-
-                                if data.get("administrasi"):
-                                    value = data.get("administrasi")
-                                    Administration.objects.update_or_create(
-                                        tps=datatps,
-                                        defaults={
-                                            "suara_sah": value.get("suara_sah"),
-                                            "suara_total": value.get("suara_total"),
-                                            "pemilih_dpt_l": value.get("pemilih_dpt_l"),
-                                            "pemilih_dpt_p": value.get("pemilih_dpt_p"),
-                                            "pengguna_dpt_j": value.get("pengguna_dpt_j"),
-                                            "pengguna_dpt_l": value.get("pengguna_dpt_l"),
-                                            "pengguna_dpt_p": value.get("pengguna_dpt_p"),
-                                            "pengguna_dptb_j": value.get("pengguna_dptb_j"),
-                                            "pengguna_dptb_l": value.get("pengguna_dptb_l"),
-                                            "pengguna_dptb_p": value.get("pengguna_dptb_p"),
-                                            "suara_tidak_sah": value.get("suara_tidak_sah"),
-                                            "pengguna_total_j": value.get("pengguna_total_j"),
-                                            "pengguna_total_l": value.get("pengguna_total_l"),
-                                            "pengguna_total_p": value.get("pengguna_total_p"),
-                                            "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
-                                            "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
-                                            "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
-                                        },
-                                    )
+                        if data.get("administrasi"):
+                            value = data.get("administrasi")
+                            Administration.objects.update_or_create(
+                                tps=datatps,
+                                ts=data["ts"],
+                                defaults={
+                                    "suara_sah": value.get("suara_sah"),
+                                    "suara_total": value.get("suara_total"),
+                                    "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                                    "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                                    "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                                    "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                                    "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                                    "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                                    "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                                    "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                                    "suara_tidak_sah": value.get("suara_tidak_sah"),
+                                    "pengguna_total_j": value.get("pengguna_total_j"),
+                                    "pengguna_total_l": value.get("pengguna_total_l"),
+                                    "pengguna_total_p": value.get("pengguna_total_p"),
+                                    "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                                    "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                                    "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+                                },
+                            )
                     elif response.status_code == 404:
                         print("TPS NOT FOUND")
                         break
@@ -273,3 +236,19 @@ def calculate_province_report():
                 },
             )
     return {"message": "Percentage Detail Done"}
+
+
+def migration_ts():
+    tps = Tps.objects.all()
+    for t in tps:
+        charts = t.charts.filter(is_deleted=False).all()
+        for c in charts:
+            c.ts = t.ts
+            c.save()
+        images = t.images.all()
+        for i in images:
+            i.ts = t.ts
+            i.save()
+        administrations = t.administrations.last()
+        administrations.ts = t.ts
+        administrations.save()
