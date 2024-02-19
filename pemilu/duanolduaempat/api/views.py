@@ -15,7 +15,7 @@ class UpdateReportDetailView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         data = run_calculate_province_report()
         return HttpResponse(
-            content=json.dumps({"Calculate running in background process"}),
+            content=json.dumps({"message": "Calculate running in background process"}),
             status=200,
             content_type="application/json",
         )
