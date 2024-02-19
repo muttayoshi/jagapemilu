@@ -192,6 +192,8 @@ def anomaly_detection():
                 t.has_anomaly = True
                 t.save()
 
+    calculate_percentage_detail()
+
     return {"message": "Anomaly Detection Done", "total_anomaly_detected": error}
 
 
