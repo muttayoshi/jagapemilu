@@ -111,14 +111,12 @@ def anomaly_detection(id_min, id_max):
                 suara_total = administrations.suara_total
 
                 if suara_sah and suara_total and suara_sah > suara_total:
-                    AnomalyDetection.objects.update_or_create(
+                    AnomalyDetection.objects.create(
                         tps=t,
                         url=t.url,
-                        defaults={
-                            "message": f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
-                            f"Anomaly Detected",
-                            "type": "Suara sah lebih besar dari total suara",
-                        },
+                        message=f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - ",
+                        type="Suara sah lebih besar dari total suara",
+                        ts=t.ts,
                     )
                     is_clean = False
 
@@ -133,26 +131,23 @@ def anomaly_detection(id_min, id_max):
                         paslon_name = "Ganjar"
                     else:
                         paslon_name = "Unknown"
-                    AnomalyDetection.objects.update_or_create(
+                    AnomalyDetection.objects.create(
                         tps=t,
                         url=t.url,
-                        defaults={
-                            "message": f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                            "type": f"Overload {paslon_name}",
-                        }
+                        message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
+                        type=f"Overload {paslon_name}",
+                        ts=t.ts,
                     )
                     is_clean = False
                 if c.count:
                     count += c.count
 
             if suara_sah and count != suara_sah:
-                AnomalyDetection.objects.update_or_create(
+                AnomalyDetection.objects.create(
                     tps=t,
                     url=t.url,
-                    defaults={
-                        "message": f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
-                        "type": "Jumlah suara sah tidak cocok",
-                    }
+                    message=f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
+                    type="Jumlah suara sah tidak cocok",
                 )
                 is_clean = False
 

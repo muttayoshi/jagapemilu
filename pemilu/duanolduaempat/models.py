@@ -92,6 +92,7 @@ class AnomalyDetection(TimeStampedModel):
     message = models.TextField(null=True, blank=True)
     type = models.CharField(max_length=100, null=True, blank=True)
     is_reported = models.BooleanField(default=False)
+    ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
 
     def __str__(self):
         return f"{self.url}"
