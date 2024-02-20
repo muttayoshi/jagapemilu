@@ -149,3 +149,15 @@ class ReportDetail(TimeStampedModel):
     #
     # def paslon_tiga_percentage(self):
     #     return f"{(self.paslon_tiga / self.total_suara) * 100} %"
+
+
+class BackupCHasil(TimeStampedModel):
+    img = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="backups")
+    kpu_url = models.URLField(null=True, blank=True)
+    s3_url = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.s3_url}"
+
+    class Meta:
+        ordering = ("-created",)

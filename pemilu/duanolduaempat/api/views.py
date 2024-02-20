@@ -34,7 +34,7 @@ class DetailView(RetrieveAPIView):
 class AnomalyDetectionView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         # data = anomaly_detection()
-        run_anomaly_detection.delay()
+        run_anomaly_detection()
         return HttpResponse(
             content=json.dumps({"message": "Anomaly detection is running"}),
             status=200,

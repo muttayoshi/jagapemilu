@@ -53,12 +53,10 @@ def crawling_kpu(province_code):
 
                         data_image = data["images"]
                         for image in data_image:
-                            Image.objects.update_or_create(
+                            Image.objects.get_or_create(
                                 tps=datatps,
                                 ts=data["ts"],
-                                defaults={
-                                    "url": image,
-                                },
+                                url=image,
                             )
 
                         if data.get("administrasi"):
@@ -96,30 +94,33 @@ def crawling_kpu(province_code):
                 tps = str(int(tps) + 1).zfill(3)
 
 
-def anomaly_detection():
-    AnomalyDetection.objects.all().delete()
-    tps = Tps.objects.all()
+def anomaly_detection(id_min, id_max):
+    if id_min and id_max:
+        tps = Tps.objects.filter(id__gte=id_min, id__lte=id_max)
+    else:
+        tps = Tps.objects.all()
     error = 0
     for t in tps:
         if t.status_adm and t.status_suara:
             charts = t.charts.filter(is_deleted=False).all()
             administrations = t.administrations.last()
             suara_sah = 0
+            is_clean = True
             if administrations:
                 suara_sah = administrations.suara_sah
                 suara_total = administrations.suara_total
 
                 if suara_sah and suara_total and suara_sah > suara_total:
-                    AnomalyDetection.objects.get_or_create(
+                    AnomalyDetection.objects.update_or_create(
                         tps=t,
                         url=t.url,
-                        message=f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
-                        f"Anomaly Detected",
-                        type="Suara sah lebih besar dari total suara",
+                        defaults={
+                            "message": f"Suara Sah: {suara_sah} lebih banyak daripada Suara Total: {suara_total} - "
+                            f"Anomaly Detected",
+                            "type": "Suara sah lebih besar dari total suara",
+                        },
                     )
-                    t.has_anomaly = True
-                    t.save()
-                    error += 1
+                    is_clean = False
 
             count = 0
             for c in charts:
@@ -132,30 +133,34 @@ def anomaly_detection():
                         paslon_name = "Ganjar"
                     else:
                         paslon_name = "Unknown"
-                    AnomalyDetection.objects.get_or_create(
+                    AnomalyDetection.objects.update_or_create(
                         tps=t,
                         url=t.url,
-                        message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                        type=f"Overload {paslon_name}",
+                        defaults={
+                            "message": f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
+                            "type": f"Overload {paslon_name}",
+                        }
                     )
-                    t.has_anomaly = True
-                    t.save()
-                    error += 1
+                    is_clean = False
                 if c.count:
                     count += c.count
 
             if suara_sah and count != suara_sah:
-                AnomalyDetection.objects.get_or_create(
+                AnomalyDetection.objects.update_or_create(
                     tps=t,
                     url=t.url,
-                    message=f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
-                    type="Jumlah suara sah tidak cocok",
+                    defaults={
+                        "message": f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
+                        "type": "Jumlah suara sah tidak cocok",
+                    }
                 )
-                error += 1
-                t.has_anomaly = True
-                t.save()
+                is_clean = False
 
-    calculate_percentage_detail()
+            if is_clean:
+                t.has_anomaly = False
+                t.save()
+            else:
+                error += 1
 
     return {"message": "Anomaly Detection Done", "total_anomaly_detected": error}
 
@@ -165,7 +170,11 @@ def calculate_percentage_detail():
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
-            name=candidate, tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False
+            name=candidate,
+            tps__status_suara=True,
+            tps__status_adm=True,
+            tps__has_anomaly=False,
+            is_deleted=False
         )
         .aggregate(Sum("count"))
         .get("count__sum")
@@ -253,3 +262,89 @@ def migration_ts():
         if administrations:
             administrations.ts = t.ts
             administrations.save()
+
+
+def update_tps(id_min, id_max):
+    tps = Tps.objects.filter(id__gte=id_min, id__lte=id_max)
+    for t in tps:
+        url = t.url.replace(
+            "https://pemilu2024.kpu.go.id/pilpres/hitung-suara/",
+            "https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/"
+        )
+
+        payload = {}
+        headers = {}
+
+        response = requests.request("GET", url, headers=headers, data=payload)
+
+        if response.status_code == 200:
+            data = response.json()
+            datatps, created = Tps.objects.update_or_create(
+                name=t.name,
+                defaults={
+                    "psu": data["psu"],
+                    "ts": data["ts"],
+                    "status_suara": data["status_suara"],
+                    "status_adm": data["status_adm"],
+                    "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
+                    f"{t.province.code}/{t.province.kota.code}/{t.province.kota.kecamatan.code}/{t.province.kota.kecamatan.kelurahan.code}/{t.name}",
+                },
+            )
+
+            data_chart = data["chart"]
+            if data_chart:
+                for key, value in data_chart.items():
+                    Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
+                    Chart.objects.create(tps=datatps, name=key, count=value, ts=data["ts"])
+
+            data_image = data["images"]
+            for image in data_image:
+                Image.objects.get_or_create(
+                    tps=datatps,
+                    ts=data["ts"],
+                    url=image,
+                )
+
+            if data.get("administrasi"):
+                value = data.get("administrasi")
+                Administration.objects.update_or_create(
+                    tps=datatps,
+                    ts=data["ts"],
+                    defaults={
+                        "suara_sah": value.get("suara_sah"),
+                        "suara_total": value.get("suara_total"),
+                        "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                        "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                        "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                        "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                        "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                        "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                        "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                        "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                        "suara_tidak_sah": value.get("suara_tidak_sah"),
+                        "pengguna_total_j": value.get("pengguna_total_j"),
+                        "pengguna_total_l": value.get("pengguna_total_l"),
+                        "pengguna_total_p": value.get("pengguna_total_p"),
+                        "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                        "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                        "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+                    },
+                )
+        elif response.status_code == 404:
+            print("TPS NOT FOUND")
+        else:
+            print("Failed to get data from URL")
+
+def divide_data(total_data, num_parts):
+    part_size = total_data // num_parts
+    remainder = total_data % num_parts
+    result = []
+    start = 1
+    for i in range(num_parts):
+        end = start + part_size - 1
+        if remainder > 0:
+            end += 1
+            remainder -= 1
+        result.append((start, end))
+        start = end + 1
+    return result

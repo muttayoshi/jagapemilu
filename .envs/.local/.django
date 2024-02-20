@@ -10,5 +10,17 @@ REDIS_URL=redis://redis:6379/0
 # ------------------------------------------------------------------------------
 
 # Flower
+# ------------------------------------------------------------------------------
 CELERY_FLOWER_USER=yPqnzKUnCkMxnRtzwtVkRBCZHwLzixJi
 CELERY_FLOWER_PASSWORD=AzK2JKq9GxRwSH4BthqfFpEJqnB1dgwpN2yY7lGCYhMLdgt7OWGrRUOgMAo9EANk
+
+# Contabo S3
+# ------------------------------------------------------------------------------
+CONTABO_S3_ACCESS_KEY_ID=e4a58ad1dd0370ea4701d3cec686ee3b
+CONTABO_S3_SECRET_ACCESS_KEY=766fe347ff45f9052459c06be893ff55
+CONTABO_S3_ENDPOINT_URL=https://eu2.contabostorage.com/backup
+CONTABO_S3_BUCKET_NAME=backup
+#CONTABO_S3_REGION_NAME=eu-central-1
+CONTABO_S3_REGION_NAME=EU
+CONTABO_CLIENT_ID=INT-12630185
+CONTABO_CLIENT_SECRET=Wzyp9JmfWAlaTOwaVT26ZcztcfMNxtDc
