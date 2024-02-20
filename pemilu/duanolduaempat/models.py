@@ -29,6 +29,7 @@ class Tps(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+        verbose_name_plural = "TPS"
 
 
 class Chart(TimeStampedModel):
