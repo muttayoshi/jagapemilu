@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps
+from .models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps, BackupCHasil
 
 
 class ChartInline(admin.TabularInline):
@@ -61,7 +61,17 @@ class ReportAdmin(admin.ModelAdmin):
         "paslon_dua_percentage",
         "paslon_tiga_percentage",
     )
-
+    
     list_per_page = 25
     inlines = [ReportDetailInline]
     readonly_fields = ("paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")
+
+
+@admin.register(BackupCHasil)
+class BackupImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "kpu_url",
+        "s3_url",
+    )
+    list_per_page = 25
+    readonly_fields = ("kpu_url", "s3_url")
