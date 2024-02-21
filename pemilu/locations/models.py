@@ -11,6 +11,7 @@ class Provinsi(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+        verbose_name_plural = "Provinsi"
 
 
 class Kota(TimeStampedModel):
@@ -23,6 +24,7 @@ class Kota(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+        verbose_name_plural = "Kota"
 
 
 class Kecamatan(TimeStampedModel):
@@ -35,6 +37,7 @@ class Kecamatan(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+        verbose_name_plural = "Kecamatan"
 
 
 class Kelurahan(TimeStampedModel):
@@ -47,6 +50,7 @@ class Kelurahan(TimeStampedModel):
 
     class Meta:
         ordering = ("created",)
+        verbose_name_plural = "Kelurahan"
 
 
 class TingkatSatu(TimeStampedModel):
