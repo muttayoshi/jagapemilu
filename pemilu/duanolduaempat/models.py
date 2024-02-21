@@ -156,6 +156,7 @@ class ReportDetail(TimeStampedModel):
 class BackupCHasil(TimeStampedModel):
     img = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="backups")
     kpu_url = models.URLField(null=True, blank=True)
+    filename = models.CharField(max_length=100, null=True, blank=True)
     s3_url = models.URLField(null=True, blank=True)
 
     def __str__(self):

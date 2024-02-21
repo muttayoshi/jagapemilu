@@ -1,7 +1,8 @@
 from config import celery_app
 from pemilu.duanolduaempat.utils import calculate_province_report, crawling_kpu, migration_ts, calculate_percentage_detail, divide_data
 from pemilu.locations.models import Provinsi
-from pemilu.duanolduaempat.models import Tps, AnomalyDetection
+from pemilu.duanolduaempat.models import Tps, AnomalyDetection, Image
+from pemilu.utils.storages import S3Storage
 
 
 @celery_app.task()
@@ -170,3 +171,22 @@ def run_calculate_province_report():
 def run_migration_ts():
     migration_ts()
     return "run_migration_ts"
+
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def backup_chasil_image():
+    chasil_count = Image.objects.count()
+    id_range = divide_data(chasil_count, 3)
+    for i in id_range:
+        id_min = i[0]
+        id_max = i[1]
+        upload_s3_image.delay(id_min, id_max)
+    return "backup_chasil_image"
+
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def upload_s3_image(id_min, id_max):
+    storage = S3Storage()
+    for image_id in range(id_min, id_max):
+        storage.backup_image(image_id)
+    return

@@ -48,8 +48,11 @@ def crawling_kpu(province_code):
                         data_chart = data["chart"]
                         if data_chart:
                             for key, value in data_chart.items():
-                                Chart.objects.filter(tps=datatps, name=key).update(is_deleted=True)
-                                Chart.objects.create(tps=datatps, name=key, count=value, ts=data["ts"])
+                                chart, chart_created = Chart.objects.get_or_create(
+                                    tps=datatps, name=key, count=value, ts=data["ts"]
+                                )
+                                if chart_created:
+                                    Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id).update(is_deleted=True)
 
                         data_image = data["images"]
                         for image in data_image:
@@ -198,7 +201,7 @@ def calculate_percentage_detail():
     return result
 
 
-def set_provice_code():
+def set_province_code():
     tps = Tps.objects.all()
     for t in tps:
         province_code = t.name[:2]
