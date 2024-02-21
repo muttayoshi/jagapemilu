@@ -169,7 +169,15 @@ def run_calculate_province_report():
 
 @celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
 def run_migration_ts():
-    migration_ts()
+    tps_count = Tps.objects.count()
+    id_range = divide_data(tps_count, 3)
+    for i in id_range:
+        call_migration_ts.delay(i[0], i[1])
+    return "run_migration_ts"
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def call_migration_ts(id_min, id_max):
+    migration_ts(id_min, id_max)
     return "run_migration_ts"
 
 
