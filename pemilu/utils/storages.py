@@ -20,17 +20,18 @@ class S3Storage:
 
     def backup_image(self, image_id):
         image = Image.objects.get(id=image_id)
-        if image:
+        if image and image.url:
             backup = BackupCHasil.objects.filter(kpu_url=image.url).first()
             if not backup:
                 image_url = image.url
                 r = requests.get(image_url, stream=True)
                 if r.status_code == 200:
                     # Create a temporary file
-                    with tempfile.NamedTemporaryFile() as f:
-                        # Write the content of the image to the file
-                        filename = f"{image.tps.name}-{datetime.datetime.now().isoformat()}.jpg"
-                        self.s3.put_object(Body=r.content, Bucket=self.bucket_name, Key=filename)
-                        # public_url = f"{self.s3.meta.endpoint_url}/{self.bucket_name}/{filename}"
-                        BackupCHasil.objects.create(img=image, kpu_url=image.url, filename=filename)
-                        return filename
+                    # with tempfile.NamedTemporaryFile() as f:
+                    # Write the content of the image to the file
+                    filename = f"{image.tps.name}-{datetime.datetime.now().isoformat()}.jpg"
+                    self.s3.put_object(Body=r.content, Bucket=self.bucket_name, Key=filename)
+                    # public_url = f"{self.s3.meta.endpoint_url}/{self.bucket_name}/{filename}"
+                    public_url = f"https://eu2.contabostorage.com/fc924094dd6f45899cb57557bc79b15d:{self.bucket_name}/{filename}"
+                    BackupCHasil.objects.create(img=image, kpu_url=image.url, filename=filename, s3_url=public_url)
+                    return filename
