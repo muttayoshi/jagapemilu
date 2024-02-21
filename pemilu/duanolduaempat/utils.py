@@ -245,8 +245,11 @@ def calculate_province_report():
     return {"message": "Percentage Detail Done"}
 
 
-def migration_ts():
-    tps = Tps.objects.all()
+def migration_ts(id_min=None, id_max=None):
+    if id_min and id_max:
+        tps = Tps.objects.filter(id__gte=id_min, id__lte=id_max)
+    else:
+        tps = Tps.objects.all()
     for t in tps:
         charts = t.charts.filter(is_deleted=False).all()
         for c in charts:
