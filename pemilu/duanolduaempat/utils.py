@@ -43,6 +43,8 @@ def crawling_kpu(province_code):
                                 "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
                                 f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}",
                                 "province": prov_id,
+                                "kelurahan": k,
+                                "has_anomaly": True,
                             },
                         )
 
@@ -273,6 +275,42 @@ def calculate_province_report():
     for province in provinces:
         tps_correct = Tps.objects.filter(
             province=province, status_suara=True, status_adm=True, has_anomaly=False
+        ).all()
+
+        if report and tps_correct:
+            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+
+            for tps in tps_correct:
+                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+                if tps_count and tps_count > 0:
+                    total_tps += 1
+                    total_suara += tps_count
+                    paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+                    paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+                    paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+
+            ReportDetail.objects.update_or_create(
+                report=report,
+                province=province,
+                defaults={
+                    "total_suara": total_suara,
+                    "total_tps": total_tps,
+                    "paslon_satu": paslon_satu,
+                    "paslon_dua": paslon_dua,
+                    "paslon_tiga": paslon_tiga,
+                },
+            )
+    return {"message": "Percentage Detail Done"}
+
+
+def calculate_province_anomaly_tps_report():
+    calculate_percentage_detail_for_anomaly_tps()
+    provinces = Provinsi.objects.all()
+    report = Report.objects.filter(name="TPS Anomaly Report").first()
+
+    for province in provinces:
+        tps_correct = Tps.objects.filter(
+            province=province, status_suara=True, status_adm=True, has_anomaly=True
         ).all()
 
         if report and tps_correct:

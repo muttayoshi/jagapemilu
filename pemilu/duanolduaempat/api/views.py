@@ -7,13 +7,15 @@ from rest_framework.viewsets import GenericViewSet
 
 from pemilu.duanolduaempat.api.serializers import ReportSerializer
 from pemilu.duanolduaempat.models import Report
-from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report, crawling_select_province
+from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report, crawling_select_province, \
+    run_calculate_provice_anomaly_tps_report
 from pemilu.duanolduaempat.utils import calculate_percentage_detail
 
 
 class UpdateReportDetailView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         run_calculate_province_report.delay()
+        run_calculate_provice_anomaly_tps_report.delay()
         return HttpResponse(
             content=json.dumps({"message": "Calculate running in background process"}),
             status=200,

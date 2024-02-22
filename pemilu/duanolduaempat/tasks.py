@@ -1,7 +1,7 @@
 from config import celery_app
 from pemilu.duanolduaempat.models import Tps, AnomalyDetection, Image
 from pemilu.duanolduaempat.utils import calculate_province_report, crawling_kpu, migration_ts, divide_data, \
-    set_kelurahan_code
+    set_kelurahan_code, calculate_province_anomaly_tps_report
 from pemilu.locations.models import Provinsi
 from pemilu.utils.storages import S3Storage
 
@@ -166,6 +166,12 @@ def run_anomaly_detection():
 def run_calculate_province_report():
     calculate_province_report()
     return "run_calculate_province_report"
+
+
+@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+def run_calculate_provice_anomaly_tps_report():
+    calculate_province_anomaly_tps_report()
+    return "run_calculate_provice_anomaly_tps_report"
 
 
 @celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
