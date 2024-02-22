@@ -212,4 +212,4 @@ def upload_s3_image(id_min, id_max):
     storage = S3Storage()
     for image_id in range(id_min, id_max):
         storage.backup_image(image_id)
-    return
+    return f"upload_s3_image {id_min} - {id_max}"

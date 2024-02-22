@@ -202,6 +202,44 @@ def calculate_percentage_detail():
     return result
 
 
+def calculate_percentage_detail_for_anomaly_tps():
+    tps_anomaly = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=True)
+    candidates = ["100025", "100026", "100027"]
+    votes = {
+        candidate: Chart.objects.filter(
+            name=candidate,
+            tps__status_suara=True,
+            tps__status_adm=True,
+            tps__has_anomaly=False,
+            is_deleted=False
+        )
+        .aggregate(Sum("count"))
+        .get("count__sum")
+        for candidate in candidates
+    }
+    total_votes = sum(votes.values())
+    percentages = {f"{candidate}_p": f"{(votes[candidate] / total_votes) * 100} %" for candidate in candidates}
+
+    Report.objects.update_or_create(
+        name="TPS Anomaly Report",
+        defaults={
+            "total_suara": total_votes,
+            "total_tps": tps_anomaly.count(),
+            "paslon_satu": votes["100025"],
+            "paslon_dua": votes["100026"],
+            "paslon_tiga": votes["100027"],
+        },
+    )
+
+    result = {
+        "tps_anomaly": tps_anomaly.count(),
+        "total_suara": total_votes,
+    }
+    result.update(votes)
+    result.update(percentages)
+    return result
+
+
 def set_province_code():
     tps = Tps.objects.all()
     for t in tps:
