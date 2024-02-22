@@ -354,6 +354,7 @@ def update_tps(id_min, id_max):
         else:
             print("Failed to get data from URL")
 
+
 def divide_data(total_data, num_parts):
     part_size = total_data // num_parts
     remainder = total_data % num_parts
@@ -374,3 +375,4 @@ def rename_s3url():
     backups = BackupCHasil.objects.filter(created__gte=date_object).all()
     for backup in backups:
         backup.s3_url = backup.s3_url.replace("fc924094dd6f45899cb57557bc79b15d", "3e6fed6b6c9b4ce8bb143ddd4481477e")
+        backup.save()
