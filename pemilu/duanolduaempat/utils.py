@@ -210,6 +210,23 @@ def set_province_code():
         t.save()
 
 
+def set_kelurahan_code(id_min, id_max):
+    if id_min and id_max:
+        tps = Tps.objects.filter(id__gte=id_min, id__lte=id_max)
+    else:
+        tps = Tps.objects.all()
+    for t in tps:
+        kelurahan_code = t.name[:10]
+        kelurahan = Kelurahan.objects.get(code=kelurahan_code)
+        t.kelurahan = kelurahan
+        t.save()
+
+        images = t.images.all()
+        for image in images:
+            image.kelurahan = kelurahan
+            image.save()
+
+
 def calculate_province_report():
     calculate_percentage_detail()
     provinces = Provinsi.objects.all()

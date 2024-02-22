@@ -13,19 +13,22 @@ class Tps(TimeStampedModel):
     province = models.ForeignKey(
         "locations.Provinsi", on_delete=models.CASCADE, related_name="tps", null=True, blank=True
     )
+    kelurahan = models.ForeignKey(
+        "locations.Kelurahan", on_delete=models.CASCADE, related_name="tps", null=True, blank=True
+    )
 
     def __str__(self):
-        # from pemilu.locations.models import Kelurahan
-        #
-        # kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
-        # if kelurahan and kelurahan.kecamatan and kelurahan.kecamatan.kota and kelurahan.kecamatan.kota.provinsi:
-        #     return (
-        #         f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - "
-        #         f"{kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}"
-        #     )
-        # else:
-        #     return self.name
-        return self.name
+        from pemilu.locations.models import Kelurahan
+
+        kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
+        if kelurahan and kelurahan.kecamatan and kelurahan.kecamatan.kota and kelurahan.kecamatan.kota.provinsi:
+            return (
+                f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - "
+                f"{kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}"
+            )
+        else:
+            return self.name
+        # return self.name
 
     class Meta:
         ordering = ("-created",)
@@ -51,12 +54,19 @@ class Image(TimeStampedModel):
     url = models.URLField(null=True, blank=True)
     image = models.ImageField(upload_to="images/", null=True, blank=True)
     ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
+    is_backup = models.BooleanField(default=False)
+    kecamatan = models.ForeignKey(
+        "locations.Kecamatan", on_delete=models.CASCADE, related_name="images", null=True, blank=True
+    )
 
     # def __str__(self):
     #     return self.url
 
     class Meta:
         ordering = ("-created",)
+
+    def get_backup(self):
+        return self.backups.first()
 
 
 class Administration(TimeStampedModel):

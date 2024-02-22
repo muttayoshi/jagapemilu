@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Kecamatan, Kelurahan, Kota, Provinsi, TingkatDua, TingkatEmpat, TingkatSatu, TingkatTiga
+from .models import Kecamatan, Kelurahan, Kota, Provinsi
+from pemilu.duanolduaempat.models import Tps
 
 
 @admin.register(Provinsi)
@@ -24,11 +25,22 @@ class KecamatanAdmin(admin.ModelAdmin):
     list_filter = ("created", "modified")
 
 
+class TpsInline(admin.TabularInline):
+    model = Tps
+    extra = 0
+    fieldsets = [
+        (None, {"fields": ["name", "psu", "ts", "status_suara", "status_adm", "url", "has_anomaly"]}),
+    ]
+    readonly_fields = ("created",)
+    ordering = ("-created", "name",)
+
+
 @admin.register(Kelurahan)
 class KelurahanAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "kecamatan", "created", "modified")
-    search_fields = ("name", "code", "kecamatan")
+    search_fields = ("name", "code")
     list_filter = ("created", "modified")
+    inlines = [TpsInline]
 
 
 # @admin.register(TingkatSatu)
