@@ -32,3 +32,4 @@ class S3Storage:
                     return filename
             else:
                 image.is_backup = True
+                image.save()
