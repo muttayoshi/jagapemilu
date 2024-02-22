@@ -7,7 +7,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from pemilu.duanolduaempat.api.serializers import ReportSerializer
 from pemilu.duanolduaempat.models import Report
-from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report
+from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report, crawling_select_province
 from pemilu.duanolduaempat.utils import calculate_percentage_detail
 
 
@@ -45,3 +45,14 @@ class AnomalyDetectionView(RetrieveAPIView):
 class ReportViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = ReportSerializer
     queryset = Report.objects.all()
+
+
+class StartCrawlingView(RetrieveAPIView):
+    def get(self, request, *args, **kwargs):
+
+        run_anomaly_detection()
+        return HttpResponse(
+            content=json.dumps({"message": "Anomaly detection is running"}),
+            status=200,
+            content_type="application/json",
+        )

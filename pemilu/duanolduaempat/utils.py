@@ -1,7 +1,8 @@
 import requests
 from django.db.models import Sum
+from datetime import datetime
 
-from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps
+from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps, BackupCHasil
 from pemilu.locations.models import Kelurahan, Provinsi
 
 
@@ -149,7 +150,7 @@ def anomaly_detection(id_min, id_max):
                 AnomalyDetection.objects.create(
                     tps=t,
                     url=t.url,
-                    message=f"Jumlah total suara {count} tidak cocok dengan suara aah: {suara_sah}",
+                    message=f"Jumlah total suara {count} tidak cocok dengan suara sah: {suara_sah}",
                     type="Jumlah suara sah tidak cocok",
                 )
                 is_clean = False
@@ -349,3 +350,10 @@ def divide_data(total_data, num_parts):
         result.append((start, end))
         start = end + 1
     return result
+
+
+def rename_s3url():
+    date_object = datetime.strptime("2024-02-22 09:00:00", "%Y-%m-%d %H:%M:%S")
+    backups = BackupCHasil.objects.filter(created__gte=date_object).all()
+    for backup in backups:
+        backup.s3_url = backup.s3_url.replace("fc924094dd6f45899cb57557bc79b15d", "3e6fed6b6c9b4ce8bb143ddd4481477e")

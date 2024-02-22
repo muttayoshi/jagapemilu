@@ -7,9 +7,9 @@ class ChartInline(admin.TabularInline):
     model = Chart
     extra = 0
     fieldsets = [
-        (None, {"fields": ["name", "count", "ts"]}),
+        (None, {"fields": ["name", "count", "ts", "created"]}),
     ]
-    ordering = ("name",)
+    ordering = ("-created", "name",)
 
 
 class ImageInline(admin.TabularInline):
@@ -26,7 +26,7 @@ class AdministrationInline(admin.TabularInline):
 
 @admin.register(Tps)
 class TpsAdmin(admin.ModelAdmin):
-    list_display = ("name", "has_anomaly", "psu", "ts", "status_suara", "status_adm", "url")
+    list_display = ("name", "has_anomaly", "created", "ts", "status_suara", "status_adm", "url")
     list_filter = ("status_suara", "status_adm", "has_anomaly", "province")
     search_fields = ("name", "psu", "ts", "url")
     list_per_page = 25
@@ -35,7 +35,7 @@ class TpsAdmin(admin.ModelAdmin):
 
 @admin.register(AnomalyDetection)
 class AnomalyDetectionAdmin(admin.ModelAdmin):
-    list_display = ("tps", "message")
+    list_display = ("tps", "message", "created")
     list_filter = ("type",)
     search_fields = ("tps", "message")
     list_per_page = 25
@@ -61,7 +61,7 @@ class ReportAdmin(admin.ModelAdmin):
         "paslon_dua_percentage",
         "paslon_tiga_percentage",
     )
-    
+
     list_per_page = 25
     inlines = [ReportDetailInline]
     readonly_fields = ("paslon_satu_percentage", "paslon_dua_percentage", "paslon_tiga_percentage")
@@ -74,4 +74,4 @@ class BackupImageAdmin(admin.ModelAdmin):
         "s3_url",
     )
     list_per_page = 25
-    readonly_fields = ("kpu_url", "s3_url")
+    readonly_fields = ("kpu_url", "s3_url", "created")
