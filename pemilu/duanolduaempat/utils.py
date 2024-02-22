@@ -212,7 +212,7 @@ def calculate_percentage_detail_for_anomaly_tps():
             name=candidate,
             tps__status_suara=True,
             tps__status_adm=True,
-            tps__has_anomaly=False,
+            tps__has_anomaly=True,
             is_deleted=False
         )
         .aggregate(Sum("count"))
