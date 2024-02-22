@@ -27,7 +27,7 @@ class S3Storage:
                 if r.status_code == 200:
                     filename = f"{image.tps.name}-{datetime.datetime.now().isoformat()}.jpg"
                     self.s3.put_object(Body=r.content, Bucket=self.bucket_name, Key=filename)
-                    public_url = f"https://eu2.contabostorage.com/3e6fed6b6c9b4ce8bb143ddd4481477e:{self.bucket_name}/{filename}"
+                    public_url = f"https://eu2.contabostorage.com/dba4f967dc7245d5b48834e3505f10ad:{self.bucket_name}/{filename}"
                     BackupCHasil.objects.create(img=image, kpu_url=image.url, filename=filename, s3_url=public_url)
                     return filename
             else:
