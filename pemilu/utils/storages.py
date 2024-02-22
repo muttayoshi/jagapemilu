@@ -18,7 +18,7 @@ class S3Storage:
         self.session = boto3.Session()
 
     def backup_image(self, image_id):
-        image = Image.objects.get(id=image_id, is_backup=False)
+        image = Image.objects.filter(id=image_id, is_backup=False).first()
         if image and image.url:
             backup = BackupCHasil.objects.filter(kpu_url=image.url).first()
             if not backup:
