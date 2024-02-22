@@ -55,8 +55,8 @@ class Image(TimeStampedModel):
     image = models.ImageField(upload_to="images/", null=True, blank=True)
     ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
     is_backup = models.BooleanField(default=False)
-    kecamatan = models.ForeignKey(
-        "locations.Kecamatan", on_delete=models.CASCADE, related_name="images", null=True, blank=True
+    kelurahan = models.ForeignKey(
+        "locations.Kelurahan", on_delete=models.CASCADE, related_name="images", null=True, blank=True
     )
 
     # def __str__(self):
