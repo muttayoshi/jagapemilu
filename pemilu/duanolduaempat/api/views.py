@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from pemilu.duanolduaempat.api.serializers import ReportSerializer
 from pemilu.duanolduaempat.models import Report
 from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report, crawling_select_province, \
-    run_calculate_provice_anomaly_tps_report
+    run_calculate_provice_anomaly_tps_report, crawling_server_1, crawling_server_2, crawling_server_3, crawling_server_4
 from pemilu.duanolduaempat.utils import calculate_percentage_detail
 
 
@@ -51,10 +51,17 @@ class ReportViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
 class StartCrawlingView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-
-        run_anomaly_detection()
+        server = kwargs.get("id")
+        if server == 1:
+            crawling_server_1()
+        elif server == 2:
+            crawling_server_2()
+        elif server == 3:
+            crawling_server_3()
+        elif server == 4:
+            crawling_server_4()
         return HttpResponse(
-            content=json.dumps({"message": "Anomaly detection is running"}),
+            content=json.dumps({"message": "Crawling is running in background process"}),
             status=200,
             content_type="application/json",
         )

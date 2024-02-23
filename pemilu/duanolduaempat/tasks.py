@@ -42,26 +42,27 @@ def anomaly_detection(id_min, id_max):
                     is_clean = False
 
             count = 0
-            for c in charts:
-                if c.count and c.count > 300:
-                    if c.name == "100025":
-                        paslon_name = "Anies"
-                    elif c.name == "100026":
-                        paslon_name = "Prabowo"
-                    elif c.name == "100027":
-                        paslon_name = "Ganjar"
-                    else:
-                        paslon_name = "Unknown"
-                    AnomalyDetection.objects.create(
-                        tps=t,
-                        url=t.url,
-                        message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                        type=f"Overload {paslon_name}",
-                        ts=t.ts,
-                    )
-                    is_clean = False
-                if c.count:
-                    count += c.count
+            if t.name[:2] != "99":
+                for c in charts:
+                    if c.count and c.count > 300:
+                        if c.name == "100025":
+                            paslon_name = "Anies"
+                        elif c.name == "100026":
+                            paslon_name = "Prabowo"
+                        elif c.name == "100027":
+                            paslon_name = "Ganjar"
+                        else:
+                            paslon_name = "Unknown"
+                        AnomalyDetection.objects.create(
+                            tps=t,
+                            url=t.url,
+                            message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
+                            type=f"Overload {paslon_name}",
+                            ts=t.ts,
+                        )
+                        is_clean = False
+                    if c.count:
+                        count += c.count
 
             if suara_sah and count != suara_sah:
                 AnomalyDetection.objects.create(
@@ -219,3 +220,35 @@ def upload_s3_image(id_min, id_max):
     for image_id in range(id_min, id_max):
         storage.backup_image(image_id)
     return f"upload_s3_image {id_min} - {id_max}"
+
+
+def crawling_server_1():
+    # sulawesi, maluku, papua, ln
+    list_province = ["71", "72", "73", "74", "75", "76", "81", "82", "91", "92", "94", "95", "96", "99"]
+    for province in list_province:
+        crawling_select_province.delay(province)
+    return "crawling_server_1"
+
+
+def crawling_server_2():
+    # kalimantan, bali, riau, sumatera
+    list_province = ["11", "12", "13", "14", "15", "16", "17", "18", "19", "21", "51", "61", "62", "63", "64", "65"]
+    for province in list_province:
+        crawling_select_province.delay(province)
+    return "crawling_server_2"
+
+
+def crawling_server_3():
+    # jakarta, jabar, jogja
+    list_province = ["31", "32", "34"]
+    for province in list_province:
+        crawling_select_province.delay(province)
+    return "crawling_server_3"
+
+
+def crawling_server_4():
+    # jateng, jatim, banten
+    list_province = ["35", "36", "33"]
+    for province in list_province:
+        crawling_select_province.delay(province)
+    return "crawling_server_4"

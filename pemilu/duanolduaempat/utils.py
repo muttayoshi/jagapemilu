@@ -127,26 +127,27 @@ def anomaly_detection(id_min, id_max):
                     is_clean = False
 
             count = 0
-            for c in charts:
-                if c.count and c.count > 300:
-                    if c.name == "100025":
-                        paslon_name = "Anies"
-                    elif c.name == "100026":
-                        paslon_name = "Prabowo"
-                    elif c.name == "100027":
-                        paslon_name = "Ganjar"
-                    else:
-                        paslon_name = "Unknown"
-                    AnomalyDetection.objects.create(
-                        tps=t,
-                        url=t.url,
-                        message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
-                        type=f"Overload {paslon_name}",
-                        ts=t.ts,
-                    )
-                    is_clean = False
-                if c.count:
-                    count += c.count
+            if t.name[:2] != "99":
+                for c in charts:
+                    if c.count and c.count > 300:
+                        if c.name == "100025":
+                            paslon_name = "Anies"
+                        elif c.name == "100026":
+                            paslon_name = "Prabowo"
+                        elif c.name == "100027":
+                            paslon_name = "Ganjar"
+                        else:
+                            paslon_name = "Unknown"
+                        AnomalyDetection.objects.create(
+                            tps=t,
+                            url=t.url,
+                            message=f"Suara pada paslon {paslon_name} bernilai {c.count}, lebih tinggi dari 300",
+                            type=f"Overload {paslon_name}",
+                            ts=t.ts,
+                        )
+                        is_clean = False
+                    if c.count:
+                        count += c.count
 
             if suara_sah and count != suara_sah:
                 AnomalyDetection.objects.create(
