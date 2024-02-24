@@ -179,7 +179,10 @@ def calculate_percentage_detail():
     #     except:
     #         print(tps.name)
 
-    total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
+    # total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
+    total_suara_h3 = sum(
+        (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
+    )
 
     candidates = ["100025", "100026", "100027"]
     votes = {
@@ -231,7 +234,7 @@ def calculate_percentage_detail_for_anomaly_tps():
     #     except:
     #         print(tps.name)
 
-    total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_anomaly if tps.administrations.last())
+    total_suara_h3 = sum((tps.administrations.last().suara_sah or 0) for tps in tps_anomaly if tps.administrations.last())
 
     candidates = ["100025", "100026", "100027"]
     votes = {
