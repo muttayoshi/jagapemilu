@@ -169,6 +169,18 @@ def anomaly_detection(id_min, id_max):
 
 def calculate_percentage_detail():
     tps_correct = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=False)
+
+    # total_suara_h3 = 0
+    # for tps in tps_correct:
+    #     try:
+    #         data_adm = tps.administrations.last()
+    #         if data_adm:
+    #             total_suara_h3 += data_adm.suara_sah
+    #     except:
+    #         print(tps.name)
+
+    total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
+
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
@@ -183,12 +195,14 @@ def calculate_percentage_detail():
         for candidate in candidates
     }
     total_votes = sum(votes.values())
+
     percentages = {f"{candidate}_p": f"{(votes[candidate] / total_votes) * 100} %" for candidate in candidates}
 
     Report.objects.update_or_create(
         name="Pemilu 2024",
         defaults={
             "total_suara": total_votes,
+            "total_suara_h_3": total_suara_h3,
             "total_tps": tps_correct.count(),
             "paslon_satu": votes["100025"],
             "paslon_dua": votes["100026"],
@@ -207,6 +221,18 @@ def calculate_percentage_detail():
 
 def calculate_percentage_detail_for_anomaly_tps():
     tps_anomaly = Tps.objects.filter(status_suara=True, status_adm=True, has_anomaly=True)
+
+    # total_suara_h3 = 0
+    # for tps in tps_anomaly:
+    #     try:
+    #         data_adm = tps.administrations.last()
+    #         if data_adm:
+    #             total_suara_h3 += data_adm.suara_sah
+    #     except:
+    #         print(tps.name)
+
+    total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_anomaly if tps.administrations.last())
+
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
@@ -227,6 +253,7 @@ def calculate_percentage_detail_for_anomaly_tps():
         name="TPS Anomaly Report",
         defaults={
             "total_suara": total_votes,
+            "total_suara_h_3": total_suara_h3,
             "total_tps": tps_anomaly.count(),
             "paslon_satu": votes["100025"],
             "paslon_dua": votes["100026"],
@@ -276,25 +303,48 @@ def calculate_province_report():
     for province in provinces:
         tps_correct = Tps.objects.filter(
             province=province, status_suara=True, status_adm=True, has_anomaly=False
-        ).all()
+        )
 
-        if report and tps_correct:
-            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
-
-            for tps in tps_correct:
-                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
-                if tps_count and tps_count > 0:
-                    total_tps += 1
-                    total_suara += tps_count
-                    paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-                    paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-                    paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+        if report and tps_correct.exists():
+            # total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+            #
+            # suara_sah_h3 = 0
+            # for tps in tps_correct:
+            #     data_adm = tps.administrations.last()
+            #     if data_adm:
+            #         suara_sah_h3 += data_adm.suara_sah
+            #
+            #     tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+            #     if tps_count and tps_count > 0:
+            #         total_tps += 1
+            #         total_suara += tps_count
+            #         paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+            #         paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+            #         paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+            suara_sah_h3 = sum(
+                tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
+            total_tps = sum(1 for tps in tps_correct if
+                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
+            )
+            total_suara = sum(
+                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
+            )
+            paslon_satu = sum(
+                tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
+            paslon_dua = sum(
+                tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
+            paslon_tiga = sum(
+                tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
 
             ReportDetail.objects.update_or_create(
                 report=report,
                 province=province,
                 defaults={
                     "total_suara": total_suara,
+                    "total_suara_h_3": suara_sah_h3,
                     "total_tps": total_tps,
                     "paslon_satu": paslon_satu,
                     "paslon_dua": paslon_dua,
@@ -317,7 +367,13 @@ def calculate_province_anomaly_tps_report():
         if report and tps_correct:
             total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
 
+            total_suara_h3 = 0
             for tps in tps_correct:
+                data_adm = tps.administrations.last()
+                if data_adm:
+                    total_suara_h3 += data_adm.suara_sah
+
+
                 tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
                 if tps_count and tps_count > 0:
                     total_tps += 1
@@ -339,6 +395,7 @@ def calculate_province_anomaly_tps_report():
                 province=province,
                 defaults={
                     "total_suara": total_suara,
+                    "total_suara_h_3": total_suara_h3,
                     "total_tps": total_tps,
                     "paslon_satu": paslon_satu,
                     "paslon_dua": paslon_dua,
