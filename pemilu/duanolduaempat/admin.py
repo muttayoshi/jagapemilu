@@ -56,6 +56,7 @@ class ReportDetailInline(admin.TabularInline):
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     list_display = (
+        "name",
         "total_suara",
         "total_tps",
         "paslon_satu",
