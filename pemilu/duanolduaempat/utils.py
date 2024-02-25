@@ -314,42 +314,42 @@ def calculate_province_report():
         tps_correct = Tps.objects.filter(province=province, status_suara=True, status_adm=True, has_anomaly=False)
 
         if report and tps_correct.exists():
-            # total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
-            #
-            # suara_sah_h3 = 0
-            # for tps in tps_correct:
-            #     data_adm = tps.administrations.last()
-            #     if data_adm:
-            #         suara_sah_h3 += data_adm.suara_sah
-            #
-            #     tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
-            #     if tps_count and tps_count > 0:
-            #         total_tps += 1
-            #         total_suara += tps_count
-            #         paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-            #         paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-            #         paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+
+            suara_sah_h3 = 0
+            for tps in tps_correct:
+                data_adm = tps.administrations.last()
+                if data_adm:
+                    suara_sah_h3 += data_adm.suara_sah
+
+                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+                if tps_count and tps_count > 0:
+                    total_tps += 1
+                    total_suara += tps_count
+                    paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+                    paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+                    paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
             # tiga
-            suara_sah_h3 = sum(
-                (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
-            )
-            total_tps = sum(
-                1
-                for tps in tps_correct
-                if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
-            )
-            total_suara = sum(
-                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
-            )
-            paslon_satu = sum(
-                tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
-            paslon_dua = sum(
-                tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
-            paslon_tiga = sum(
-                tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
+            # suara_sah_h3 = sum(
+            #     (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
+            # )
+            # total_tps = sum(
+            #     1
+            #     for tps in tps_correct
+            #     if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
+            # )
+            # total_suara = sum(
+            #     tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
+            # )
+            # paslon_satu = sum(
+            #     tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
+            # paslon_dua = sum(
+            #     tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
+            # paslon_tiga = sum(
+            #     tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
 
             ReportDetail.objects.update_or_create(
                 report=report,
@@ -375,51 +375,51 @@ def calculate_province_anomaly_tps_report():
         tps_correct = Tps.objects.filter(province=province, status_suara=True, status_adm=True, has_anomaly=True).all()
 
         if report and tps_correct:
-            # total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
-            #
-            # total_suara_h3 = 0
-            # for tps in tps_correct:
-            #     data_adm = tps.administrations.last()
-            #     if data_adm:
-            #         total_suara_h3 += data_adm.suara_sah
-            #
-            #
-            #     tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
-            #     if tps_count and tps_count > 0:
-            #         total_tps += 1
-            #         total_suara += tps_count
-            #
-            #         if tps.charts.filter(name="100025", is_deleted=False).last():
-            #             paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-            #         if tps.charts.filter(name="100026", is_deleted=False).last():
-            #             paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-            #         if tps.charts.filter(name="100027", is_deleted=False).last():
-            #             paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
-            #
+            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+
+            total_suara_h3 = 0
+            for tps in tps_correct:
+                data_adm = tps.administrations.last()
+                if data_adm:
+                    total_suara_h3 += data_adm.suara_sah
+
+
+                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+                if tps_count and tps_count > 0:
+                    total_tps += 1
+                    total_suara += tps_count
+
+                    if tps.charts.filter(name="100025", is_deleted=False).last():
+                        paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+                    if tps.charts.filter(name="100026", is_deleted=False).last():
+                        paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+                    if tps.charts.filter(name="100027", is_deleted=False).last():
+                        paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+
             #         # paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
             #         # paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
             #         # paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
 
-            total_suara_h3 = sum(
-                tps.administrations.last().suara_sah or 0 for tps in tps_correct if tps.administrations.last()
-            )
-            total_tps = sum(
-                1
-                for tps in tps_correct
-                if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
-            )
-            total_suara = sum(
-                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
-            )
-            paslon_satu = sum(
-                tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
-            paslon_dua = sum(
-                tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
-            paslon_tiga = sum(
-                tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
-            )
+            # total_suara_h3 = sum(
+            #     tps.administrations.last().suara_sah or 0 for tps in tps_correct if tps.administrations.last()
+            # )
+            # total_tps = sum(
+            #     1
+            #     for tps in tps_correct
+            #     if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
+            # )
+            # total_suara = sum(
+            #     tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
+            # )
+            # paslon_satu = sum(
+            #     tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
+            # paslon_dua = sum(
+            #     tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
+            # paslon_tiga = sum(
+            #     tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
+            # )
 
             ReportDetail.objects.update_or_create(
                 report=report,
