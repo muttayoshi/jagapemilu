@@ -114,8 +114,8 @@ class AnomalyDetection(TimeStampedModel):
 
 class Report(TimeStampedModel):
     name = models.CharField(max_length=100)
-    total_suara = models.IntegerField("Total Suara Hal. 2",null=True, blank=True)
-    total_suara_h_3 = models.IntegerField("Total Suara Hal. 3",null=True, blank=True)
+    total_suara = models.IntegerField("Total Suara Hal. 2", null=True, blank=True)
+    total_suara_h_3 = models.IntegerField("Total Suara Hal. 3", null=True, blank=True)
     total_tps = models.IntegerField(null=True, blank=True)
     paslon_satu = models.IntegerField(null=True, blank=True)
     paslon_dua = models.IntegerField(null=True, blank=True)

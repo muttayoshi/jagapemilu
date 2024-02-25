@@ -1,7 +1,13 @@
 from config import celery_app
-from pemilu.duanolduaempat.models import Tps, AnomalyDetection, Image
-from pemilu.duanolduaempat.utils import calculate_province_report, crawling_kpu, migration_ts, divide_data, \
-    set_kelurahan_code, calculate_province_anomaly_tps_report
+from pemilu.duanolduaempat.models import AnomalyDetection, Image, Tps
+from pemilu.duanolduaempat.utils import (
+    calculate_province_anomaly_tps_report,
+    calculate_province_report,
+    crawling_kpu,
+    divide_data,
+    migration_ts,
+    set_kelurahan_code,
+)
 from pemilu.locations.models import Provinsi
 from pemilu.utils.storages import S3Storage
 
@@ -182,6 +188,7 @@ def run_migration_ts():
     for i in id_range:
         call_migration_ts.delay(i[0], i[1])
     return "run_migration_ts"
+
 
 @celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
 def call_migration_ts(id_min, id_max):

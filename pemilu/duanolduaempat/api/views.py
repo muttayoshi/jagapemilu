@@ -7,8 +7,15 @@ from rest_framework.viewsets import GenericViewSet
 
 from pemilu.duanolduaempat.api.serializers import ReportSerializer
 from pemilu.duanolduaempat.models import Report
-from pemilu.duanolduaempat.tasks import run_anomaly_detection, run_calculate_province_report, crawling_select_province, \
-    run_calculate_provice_anomaly_tps_report, crawling_server_1, crawling_server_2, crawling_server_3, crawling_server_4
+from pemilu.duanolduaempat.tasks import (
+    crawling_server_1,
+    crawling_server_2,
+    crawling_server_3,
+    crawling_server_4,
+    run_anomaly_detection,
+    run_calculate_provice_anomaly_tps_report,
+    run_calculate_province_report,
+)
 from pemilu.duanolduaempat.utils import calculate_percentage_detail
 
 

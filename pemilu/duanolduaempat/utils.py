@@ -1,8 +1,18 @@
-import requests
-from django.db.models import Sum
 from datetime import datetime
 
-from pemilu.duanolduaempat.models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps, BackupCHasil
+import requests
+from django.db.models import Sum
+
+from pemilu.duanolduaempat.models import (
+    Administration,
+    AnomalyDetection,
+    BackupCHasil,
+    Chart,
+    Image,
+    Report,
+    ReportDetail,
+    Tps,
+)
 from pemilu.locations.models import Kelurahan, Provinsi
 
 
@@ -55,7 +65,9 @@ def crawling_kpu(province_code):
                                     tps=datatps, name=key, count=value, ts=data["ts"]
                                 )
                                 if chart_created:
-                                    Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id).update(is_deleted=True)
+                                    Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id).update(
+                                        is_deleted=True
+                                    )
 
                         data_image = data["images"]
                         for image in data_image:
@@ -180,6 +192,7 @@ def calculate_percentage_detail():
     #         print(tps.name)
 
     # total_suara_h3 = sum(tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
+    # satu
     total_suara_h3 = sum(
         (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
     )
@@ -187,11 +200,7 @@ def calculate_percentage_detail():
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
-            name=candidate,
-            tps__status_suara=True,
-            tps__status_adm=True,
-            tps__has_anomaly=False,
-            is_deleted=False
+            name=candidate, tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=False, is_deleted=False
         )
         .aggregate(Sum("count"))
         .get("count__sum")
@@ -233,17 +242,15 @@ def calculate_percentage_detail_for_anomaly_tps():
     #             total_suara_h3 += data_adm.suara_sah
     #     except:
     #         print(tps.name)
-
-    total_suara_h3 = sum((tps.administrations.last().suara_sah or 0) for tps in tps_anomaly if tps.administrations.last())
+    # dua
+    total_suara_h3 = sum(
+        (tps.administrations.last().suara_sah or 0) for tps in tps_anomaly if tps.administrations.last()
+    )
 
     candidates = ["100025", "100026", "100027"]
     votes = {
         candidate: Chart.objects.filter(
-            name=candidate,
-            tps__status_suara=True,
-            tps__status_adm=True,
-            tps__has_anomaly=True,
-            is_deleted=False
+            name=candidate, tps__status_suara=True, tps__status_adm=True, tps__has_anomaly=True, is_deleted=False
         )
         .aggregate(Sum("count"))
         .get("count__sum")
@@ -304,9 +311,7 @@ def calculate_province_report():
     report = Report.objects.filter(name="Pemilu 2024").first()
 
     for province in provinces:
-        tps_correct = Tps.objects.filter(
-            province=province, status_suara=True, status_adm=True, has_anomaly=False
-        )
+        tps_correct = Tps.objects.filter(province=province, status_suara=True, status_adm=True, has_anomaly=False)
 
         if report and tps_correct.exists():
             # total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
@@ -324,10 +329,14 @@ def calculate_province_report():
             #         paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
             #         paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
             #         paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+            # tiga
             suara_sah_h3 = sum(
-                tps.administrations.last().suara_sah for tps in tps_correct if tps.administrations.last())
-            total_tps = sum(1 for tps in tps_correct if
-                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
+                (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
+            )
+            total_tps = sum(
+                1
+                for tps in tps_correct
+                if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
             )
             total_suara = sum(
                 tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
@@ -363,35 +372,54 @@ def calculate_province_anomaly_tps_report():
     report = Report.objects.filter(name="TPS Anomaly Report").first()
 
     for province in provinces:
-        tps_correct = Tps.objects.filter(
-            province=province, status_suara=True, status_adm=True, has_anomaly=True
-        ).all()
+        tps_correct = Tps.objects.filter(province=province, status_suara=True, status_adm=True, has_anomaly=True).all()
 
         if report and tps_correct:
-            total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+            # total_suara, total_tps, paslon_satu, paslon_dua, paslon_tiga = 0, 0, 0, 0, 0
+            #
+            # total_suara_h3 = 0
+            # for tps in tps_correct:
+            #     data_adm = tps.administrations.last()
+            #     if data_adm:
+            #         total_suara_h3 += data_adm.suara_sah
+            #
+            #
+            #     tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
+            #     if tps_count and tps_count > 0:
+            #         total_tps += 1
+            #         total_suara += tps_count
+            #
+            #         if tps.charts.filter(name="100025", is_deleted=False).last():
+            #             paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+            #         if tps.charts.filter(name="100026", is_deleted=False).last():
+            #             paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+            #         if tps.charts.filter(name="100027", is_deleted=False).last():
+            #             paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+            #
+            #         # paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
+            #         # paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
+            #         # paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
 
-            total_suara_h3 = 0
-            for tps in tps_correct:
-                data_adm = tps.administrations.last()
-                if data_adm:
-                    total_suara_h3 += data_adm.suara_sah
-
-
-                tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
-                if tps_count and tps_count > 0:
-                    total_tps += 1
-                    total_suara += tps_count
-
-                    if tps.charts.filter(name="100025", is_deleted=False).last():
-                        paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-                    if tps.charts.filter(name="100026", is_deleted=False).last():
-                        paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-                    if tps.charts.filter(name="100027", is_deleted=False).last():
-                        paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
-
-                    # paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-                    # paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-                    # paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+            total_suara_h3 = sum(
+                tps.administrations.last().suara_sah or 0 for tps in tps_correct if tps.administrations.last()
+            )
+            total_tps = sum(
+                1
+                for tps in tps_correct
+                if tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") > 0
+            )
+            total_suara = sum(
+                tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum") for tps in tps_correct
+            )
+            paslon_satu = sum(
+                tps.charts.filter(name="100025", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
+            paslon_dua = sum(
+                tps.charts.filter(name="100026", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
+            paslon_tiga = sum(
+                tps.charts.filter(name="100027", is_deleted=False).last().count or 0 for tps in tps_correct
+            )
 
             ReportDetail.objects.update_or_create(
                 report=report,
@@ -433,7 +461,7 @@ def update_tps(id_min, id_max):
     for t in tps:
         url = t.url.replace(
             "https://pemilu2024.kpu.go.id/pilpres/hitung-suara/",
-            "https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/"
+            "https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/",
         )
 
         payload = {}
@@ -451,7 +479,8 @@ def update_tps(id_min, id_max):
                     "status_suara": data["status_suara"],
                     "status_adm": data["status_adm"],
                     "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
-                    f"{t.province.code}/{t.province.kota.code}/{t.province.kota.kecamatan.code}/{t.province.kota.kecamatan.kelurahan.code}/{t.name}",
+                    f"{t.province.code}/{t.province.kota.code}/{t.province.kota.kecamatan.code}/"
+                    f"{t.province.kota.kecamatan.kelurahan.code}/{t.name}",
                 },
             )
 

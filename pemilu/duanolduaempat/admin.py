@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Administration, AnomalyDetection, Chart, Image, Report, ReportDetail, Tps, BackupCHasil
+from .models import Administration, AnomalyDetection, BackupCHasil, Chart, Image, Report, ReportDetail, Tps
 
 
 class ChartInline(admin.TabularInline):
@@ -10,7 +10,10 @@ class ChartInline(admin.TabularInline):
         (None, {"fields": ["name", "count", "ts"]}),
     ]
     readonly_fields = ("created",)
-    ordering = ("-created", "name",)
+    ordering = (
+        "-created",
+        "name",
+    )
 
 
 class ImageInline(admin.TabularInline):

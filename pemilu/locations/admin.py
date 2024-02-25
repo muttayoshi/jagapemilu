@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import Kecamatan, Kelurahan, Kota, Provinsi
 from pemilu.duanolduaempat.models import Tps
+
+from .models import Kecamatan, Kelurahan, Kota, Provinsi
 
 
 @admin.register(Provinsi)
@@ -32,7 +33,10 @@ class TpsInline(admin.TabularInline):
         (None, {"fields": ["name", "psu", "ts", "status_suara", "status_adm", "url", "has_anomaly"]}),
     ]
     readonly_fields = ("created",)
-    ordering = ("-created", "name",)
+    ordering = (
+        "-created",
+        "name",
+    )
 
 
 @admin.register(Kelurahan)
