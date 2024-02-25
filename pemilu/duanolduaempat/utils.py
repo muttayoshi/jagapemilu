@@ -319,7 +319,7 @@ def calculate_province_report():
             suara_sah_h3 = 0
             for tps in tps_correct:
                 data_adm = tps.administrations.last()
-                if data_adm:
+                if data_adm and data_adm.suara_sah:
                     suara_sah_h3 += data_adm.suara_sah
 
                 tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
@@ -380,7 +380,7 @@ def calculate_province_anomaly_tps_report():
             total_suara_h3 = 0
             for tps in tps_correct:
                 data_adm = tps.administrations.last()
-                if data_adm:
+                if data_adm and data_adm.suara_sah:
                     total_suara_h3 += data_adm.suara_sah
 
 
