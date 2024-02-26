@@ -326,9 +326,12 @@ def calculate_province_report():
                 if tps_count and tps_count > 0:
                     total_tps += 1
                     total_suara += tps_count
-                    paslon_satu += tps.charts.filter(name="100025", is_deleted=False).last().count or 0
-                    paslon_dua += tps.charts.filter(name="100026", is_deleted=False).last().count or 0
-                    paslon_tiga += tps.charts.filter(name="100027", is_deleted=False).last().count or 0
+                    count_paslon_satu = tps.charts.filter(name="100025", is_deleted=False).last()
+                    paslon_satu += count_paslon_satu.count if count_paslon_satu else 0
+                    count_paslon_dua = tps.charts.filter(name="100026", is_deleted=False).last()
+                    paslon_dua += count_paslon_dua.count if count_paslon_dua else 0
+                    count_paslon_tiga = tps.charts.filter(name="100027", is_deleted=False).last()
+                    paslon_tiga += count_paslon_tiga.count if count_paslon_tiga else 0
             # tiga
             # suara_sah_h3 = sum(
             #     (tps.administrations.last().suara_sah or 0) for tps in tps_correct if tps.administrations.last()
