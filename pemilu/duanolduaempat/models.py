@@ -176,3 +176,78 @@ class BackupCHasil(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+
+
+class TpsSisa(TimeStampedModel):
+    name = models.CharField(max_length=100)
+    psu = models.CharField(null=True, blank=True)
+    ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
+    status_suara = models.BooleanField(default=False)
+    status_adm = models.BooleanField(default=False)
+    url = models.URLField(null=True, blank=True)
+    has_anomaly = models.BooleanField(default=True)
+    province = models.ForeignKey(
+        "locations.Provinsi", on_delete=models.CASCADE, related_name="sisa_tps", null=True, blank=True
+    )
+    kelurahan = models.ForeignKey(
+        "locations.Kelurahan", on_delete=models.CASCADE, related_name="sisa_tps", null=True, blank=True
+    )
+
+    def __str__(self):
+        from pemilu.locations.models import Kelurahan
+
+        kelurahan = Kelurahan.objects.filter(code=self.name[:-3]).first()
+        if kelurahan and kelurahan.kecamatan and kelurahan.kecamatan.kota and kelurahan.kecamatan.kota.provinsi:
+            return (
+                f"{kelurahan.kecamatan.kota.provinsi.name} - {kelurahan.kecamatan.kota.name} - "
+                f"{kelurahan.kecamatan.name} - {kelurahan.name} | TPS: {self.name[-3:]}"
+            )
+        else:
+            return self.name
+        # return self.name
+
+    class Meta:
+        ordering = ("-created",)
+        verbose_name_plural = "TPS Sisa"
+
+
+class ChartSisa(TimeStampedModel):
+    tps = models.ForeignKey(TpsSisa, on_delete=models.CASCADE, related_name="sisa_charts")
+    name = models.CharField(max_length=100)
+    count = models.IntegerField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
+    ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
+
+    def __str__(self):
+        return f"{self.name} - {self.count}"
+
+    class Meta:
+        ordering = ("-created",)
+
+
+class AdministrationSisa(TimeStampedModel):
+    tps = models.ForeignKey(TpsSisa, on_delete=models.CASCADE, related_name="sisa_administrations")
+    ts = models.DateTimeField(null=True, blank=True, verbose_name="version")
+    suara_sah = models.IntegerField(null=True, blank=True)
+    suara_total = models.IntegerField(null=True, blank=True)
+    pemilih_dpt_l = models.IntegerField(null=True, blank=True)
+    pemilih_dpt_p = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_j = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_l = models.IntegerField(null=True, blank=True)
+    pengguna_dpt_p = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_j = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_l = models.IntegerField(null=True, blank=True)
+    pengguna_dptb_p = models.IntegerField(null=True, blank=True)
+    suara_tidak_sah = models.IntegerField(null=True, blank=True)
+    pengguna_total_j = models.IntegerField(null=True, blank=True)
+    pengguna_total_l = models.IntegerField(null=True, blank=True)
+    pengguna_total_p = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_j = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_l = models.IntegerField(null=True, blank=True)
+    pengguna_non_dpt_p = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.suara_sah} - {self.suara_total}"
+
+    class Meta:
+        ordering = ("-created",)

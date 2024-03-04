@@ -386,7 +386,6 @@ def calculate_province_anomaly_tps_report():
                 if data_adm and data_adm.suara_sah:
                     total_suara_h3 += data_adm.suara_sah
 
-
                 tps_count = tps.charts.filter(is_deleted=False).aggregate(Sum("count")).get("count__sum")
                 if tps_count and tps_count > 0:
                     total_tps += 1

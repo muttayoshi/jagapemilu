@@ -1,9 +1,8 @@
 import requests
 
 from config import celery_app
-from pemilu.locations.utils import update_data_province, update_data_kota
-
 from pemilu.locations.models import Provinsi
+from pemilu.locations.utils import update_data_kota, update_data_province
 
 
 @celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
@@ -44,7 +43,7 @@ def get_data_location_for_kpu():
         # Slice the data_province list using the start and end indices
         # Python list slicing is zero-indexed and the end index is exclusive
         # We subtract 1 from start and end to get the correct slices
-        chunk = data_province[start - 1:end]
+        chunk = data_province[start - 1 : end]
 
         # Append the chunk to the divided_data list
         divided_data.append(chunk)
