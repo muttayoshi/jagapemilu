@@ -210,10 +210,10 @@ def migrate_kelurahan_code(id_min, id_max):
     return "migrate_kelurahan_code"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 3, time_limit=60 * 60 * 24 * 3)
 def backup_chasil_image():
     chasil_count = Image.objects.count()
-    id_range = divide_data(chasil_count, 3)
+    id_range = divide_data(chasil_count, 6)
     for i in id_range:
         id_min = i[0]
         id_max = i[1]
