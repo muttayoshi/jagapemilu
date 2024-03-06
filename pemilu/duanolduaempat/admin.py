@@ -6,9 +6,7 @@ from .models import Administration, AnomalyDetection, BackupCHasil, Chart, Image
 class ChartInline(admin.TabularInline):
     model = Chart
     extra = 0
-    fieldsets = [
-        (None, {"fields": ["name", "count", "ts"]}),
-    ]
+    fieldsets = ((None, {"fields": ["name", "count", "ts"]}),)
     readonly_fields = ("created",)
     ordering = (
         "-created",
@@ -19,9 +17,7 @@ class ChartInline(admin.TabularInline):
 class ImageInline(admin.TabularInline):
     model = Image
     extra = 0
-    fieldsets = [
-        (None, {"fields": ["url", "image", "ts", "get_backup"]}),
-    ]
+    fieldsets = ((None, {"fields": ["url", "image", "ts", "get_backup"]}),)
     readonly_fields = ("get_backup",)
     ordering = ("-created",)
 

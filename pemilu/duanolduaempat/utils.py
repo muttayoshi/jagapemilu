@@ -12,104 +12,306 @@ from pemilu.duanolduaempat.models import (
     Report,
     ReportDetail,
     Tps,
+    TpsSisa,
+    ChartSisa,
+    AdministrationSisa,
 )
 from pemilu.locations.models import Kelurahan, Provinsi
 
 
+# def save_tps_sisa(response, datatps):
+#     data = response.json()
+#     datatps, created = TpsSisa.objects.update_or_create(
+#         name=datatps.name,
+#         defaults={
+#             "psu": data["psu"],
+#             "ts": data["ts"],
+#             "status_suara": data["status_suara"],
+#             "status_adm": data["status_adm"],
+#             "url": datatps.url,
+#             "province": datatps.province,
+#             "kelurahan": datatps.kelurahan,
+#             "has_anomaly": True,
+#         },
+#     )
+#
+#     data_chart = data["chart"]
+#     if data_chart:
+#         new_chart = []
+#         for key, value in data_chart.items():
+#             chart, chart_created = ChartSisa.objects.get_or_create(
+#                 tps=datatps, name=key, count=value, ts=data["ts"]
+#             )
+#             if chart_created:
+#                 ChartSisa.objects.filter(tps=datatps, name=key).exclude(id=chart.id).update(
+#                     is_deleted=True
+#                 )
+#                 new_chart.append(True)
+#             else:
+#                 new_chart.append(False)
+#
+#     if data.get("administrasi"):
+#         value = data.get("administrasi")
+#         AdministrationSisa.objects.update_or_create(
+#             tps=datatps,
+#             ts=data["ts"],
+#             defaults={
+#                 "suara_sah": value.get("suara_sah"),
+#                 "suara_total": value.get("suara_total"),
+#                 "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+#                 "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+#                 "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+#                 "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+#                 "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+#                 "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+#                 "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+#                 "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+#                 "suara_tidak_sah": value.get("suara_tidak_sah"),
+#                 "pengguna_total_j": value.get("pengguna_total_j"),
+#                 "pengguna_total_l": value.get("pengguna_total_l"),
+#                 "pengguna_total_p": value.get("pengguna_total_p"),
+#                 "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+#                 "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+#                 "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+#             },
+#         )
+
+
+def save_tps_sisa(response, datatps):
+    data = response.json()
+    datatps_sisa, created = TpsSisa.objects.update_or_create(
+        name=f"{datatps.name}",
+        defaults={
+            "psu": data["psu"],
+            "ts": data["ts"],
+            "status_suara": data["status_suara"],
+            "status_adm": data["status_adm"],
+            "url": f"{datatps.url}",
+            "province": datatps.province,
+            "kelurahan": datatps.kelurahan,
+            "has_anomaly": True,
+        },
+    )
+
+    if data.get("chart"):
+        for key, value in data["chart"].items():
+            chart, chart_created = ChartSisa.objects.get_or_create(tps=datatps_sisa, name=key, count=value, ts=data["ts"])
+            if chart_created:
+                ChartSisa.objects.filter(tps=datatps_sisa, name=key).exclude(id=chart.id).update(is_deleted=True)
+
+    if data.get("administrasi"):
+        value = data.get("administrasi")
+        AdministrationSisa.objects.update_or_create(
+            tps=datatps_sisa,
+            ts=data["ts"],
+            defaults={
+                "suara_sah": value.get("suara_sah"),
+                "suara_total": value.get("suara_total"),
+                "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                "suara_tidak_sah": value.get("suara_tidak_sah"),
+                "pengguna_total_j": value.get("pengguna_total_j"),
+                "pengguna_total_l": value.get("pengguna_total_l"),
+                "pengguna_total_p": value.get("pengguna_total_p"),
+                "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+            },
+        )
+
+
 def crawling_kpu(province_code):
-    list_province_code = province_code.split(",")
-    for province in list_province_code:
+    for province in province_code.split(","):
         prov_id = Provinsi.objects.get(code=province)
-        kelurahan = Kelurahan.objects.filter(code__startswith=province).all()
-
-        for k in kelurahan:
-            kelurahan = k.code
-            kecamatan = kelurahan[:-4]
-            kota = kecamatan[:-2]
-            provinsi = kota[:-2]
-
+        for k in Kelurahan.objects.filter(code__startswith=province):
             tps = "001"
             while True:
-                try:
-                    url = (
-                        f"https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/"
-                        f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}.json"
+                url = f"https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/{k.code[:2]}/{k.code[:4]}/{k.code[:6]}/{k.code}/{k.code}{tps}.json"
+                payload = {}
+                headers = {}
+                response = requests.request("GET", url, headers=headers, data=payload)
+                if response.status_code == 200:
+                    data = response.json()
+                    datatps, created = Tps.objects.update_or_create(
+                        name=f"{k.code}{tps}",
+                        defaults={
+                            "psu": data["psu"],
+                            "ts": data["ts"],
+                            "status_suara": data["status_suara"],
+                            "status_adm": data["status_adm"],
+                            "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
+                                   f"{k.code[:2]}/{k.code[:4]}/{k.code[:6]}/{k.code}/{k.code}{tps}",
+                            "province": prov_id,
+                            "kelurahan": k,
+                            "has_anomaly": True,
+                        },
                     )
+                    print(f"{created} | {datatps}")
 
-                    payload = {}
-                    headers = {}
+                    if data.get("chart"):
+                        new_chart = []
+                        for key, value in data.get("chart").items():
+                            chart, chart_created = Chart.objects.get_or_create(
+                                tps=datatps, name=key, count=value, ts=data["ts"]
+                            )
+                            if chart_created:
+                                data_chart = Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id)
+                                if data_chart:
+                                    data_chart.update(is_deleted=True)
+                                    new_chart.append(False)
+                                else:
+                                    new_chart.append(True)
+                            else:
+                                new_chart.append(False)
 
-                    response = requests.request("GET", url, headers=headers, data=payload)
+                        if all(new_chart):
+                            save_tps_sisa(response, datatps)
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        datatps, created = Tps.objects.update_or_create(
-                            name=f"{kelurahan}{tps}",
+                    for image in data.get("images", []):
+                        Image.objects.get_or_create(tps=datatps, ts=data["ts"], url=image)
+
+                    if data.get("administrasi"):
+                        value = data.get("administrasi")
+                        Administration.objects.update_or_create(
+                            tps=datatps,
+                            ts=data["ts"],
                             defaults={
-                                "psu": data["psu"],
-                                "ts": data["ts"],
-                                "status_suara": data["status_suara"],
-                                "status_adm": data["status_adm"],
-                                "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
-                                f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}",
-                                "province": prov_id,
-                                "kelurahan": k,
-                                "has_anomaly": True,
+                                "suara_sah": value.get("suara_sah"),
+                                "suara_total": value.get("suara_total"),
+                                "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+                                "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+                                "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+                                "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+                                "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+                                "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+                                "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+                                "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+                                "suara_tidak_sah": value.get("suara_tidak_sah"),
+                                "pengguna_total_j": value.get("pengguna_total_j"),
+                                "pengguna_total_l": value.get("pengguna_total_l"),
+                                "pengguna_total_p": value.get("pengguna_total_p"),
+                                "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+                                "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+                                "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
                             },
                         )
-
-                        data_chart = data["chart"]
-                        if data_chart:
-                            for key, value in data_chart.items():
-                                chart, chart_created = Chart.objects.get_or_create(
-                                    tps=datatps, name=key, count=value, ts=data["ts"]
-                                )
-                                if chart_created:
-                                    Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id).update(
-                                        is_deleted=True
-                                    )
-
-                        data_image = data["images"]
-                        for image in data_image:
-                            Image.objects.get_or_create(
-                                tps=datatps,
-                                ts=data["ts"],
-                                url=image,
-                            )
-
-                        if data.get("administrasi"):
-                            value = data.get("administrasi")
-                            Administration.objects.update_or_create(
-                                tps=datatps,
-                                ts=data["ts"],
-                                defaults={
-                                    "suara_sah": value.get("suara_sah"),
-                                    "suara_total": value.get("suara_total"),
-                                    "pemilih_dpt_l": value.get("pemilih_dpt_l"),
-                                    "pemilih_dpt_p": value.get("pemilih_dpt_p"),
-                                    "pengguna_dpt_j": value.get("pengguna_dpt_j"),
-                                    "pengguna_dpt_l": value.get("pengguna_dpt_l"),
-                                    "pengguna_dpt_p": value.get("pengguna_dpt_p"),
-                                    "pengguna_dptb_j": value.get("pengguna_dptb_j"),
-                                    "pengguna_dptb_l": value.get("pengguna_dptb_l"),
-                                    "pengguna_dptb_p": value.get("pengguna_dptb_p"),
-                                    "suara_tidak_sah": value.get("suara_tidak_sah"),
-                                    "pengguna_total_j": value.get("pengguna_total_j"),
-                                    "pengguna_total_l": value.get("pengguna_total_l"),
-                                    "pengguna_total_p": value.get("pengguna_total_p"),
-                                    "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
-                                    "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
-                                    "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
-                                },
-                            )
-                    elif response.status_code == 404:
-                        print("TPS NOT FOUND")
-                        break
-                    else:
-                        print("Failed to get data from URL")
-                except Exception as e:
-                    print(e)
+                elif response.status_code == 404:
+                    print("TPS NOT FOUND")
+                    break
+                else:
+                    print("Failed to get data from URL")
                 tps = str(int(tps) + 1).zfill(3)
+
+
+# def crawling_kpu(province_code):
+#     list_province_code = province_code.split(",")
+#     for province in list_province_code:
+#         prov_id = Provinsi.objects.get(code=province)
+#         kelurahan = Kelurahan.objects.filter(code__startswith=province).all()
+#
+#         for k in kelurahan:
+#             kelurahan = k.code
+#             kecamatan = kelurahan[:-4]
+#             kota = kecamatan[:-2]
+#             provinsi = kota[:-2]
+#
+#             tps = "001"
+#             while True:
+#                 try:
+#                     url = (
+#                         f"https://sirekap-obj-data.kpu.go.id/pemilu/hhcw/ppwp/"
+#                         f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}.json"
+#                     )
+#
+                    # payload = {}
+                    # headers = {}
+                    #
+                    # response = requests.request("GET", url, headers=headers, data=payload)
+#
+#                     if response.status_code == 200:
+#                         data = response.json()
+#                         datatps, created = Tps.objects.update_or_create(
+#                             name=f"{kelurahan}{tps}",
+#                             defaults={
+#                                 "psu": data["psu"],
+#                                 "ts": data["ts"],
+#                                 "status_suara": data["status_suara"],
+#                                 "status_adm": data["status_adm"],
+#                                 "url": f"https://pemilu2024.kpu.go.id/pilpres/hitung-suara/"
+#                                 f"{provinsi}/{kota}/{kecamatan}/{kelurahan}/{kelurahan}{tps}",
+#                                 "province": prov_id,
+#                                 "kelurahan": k,
+#                                 "has_anomaly": True,
+#                             },
+#                         )
+#
+#                         data_chart = data["chart"]
+#                         if data_chart:
+#                             new_chart = []
+#                             for key, value in data_chart.items():
+#                                 chart, chart_created = Chart.objects.get_or_create(
+#                                     tps=datatps, name=key, count=value, ts=data["ts"]
+#                                 )
+#                                 if chart_created:
+#                                     data_chart = Chart.objects.filter(tps=datatps, name=key).exclude(id=chart.id)
+#                                     if data_chart:
+#                                         data_chart.update(is_deleted=True)
+#                                         new_chart.append(False)
+#                                     else:
+#                                         new_chart.append(True)
+#                                 else:
+#                                     new_chart.append(False)
+#
+#                             if all(new_chart):
+#                                 save_tps_sisa(response, datatps)
+#
+#                         data_image = data["images"]
+#                         for image in data_image:
+#                             Image.objects.get_or_create(
+#                                 tps=datatps,
+#                                 ts=data["ts"],
+#                                 url=image,
+#                             )
+#
+#                         if data.get("administrasi"):
+#                             value = data.get("administrasi")
+#                             Administration.objects.update_or_create(
+#                                 tps=datatps,
+#                                 ts=data["ts"],
+#                                 defaults={
+#                                     "suara_sah": value.get("suara_sah"),
+#                                     "suara_total": value.get("suara_total"),
+#                                     "pemilih_dpt_l": value.get("pemilih_dpt_l"),
+#                                     "pemilih_dpt_p": value.get("pemilih_dpt_p"),
+#                                     "pengguna_dpt_j": value.get("pengguna_dpt_j"),
+#                                     "pengguna_dpt_l": value.get("pengguna_dpt_l"),
+#                                     "pengguna_dpt_p": value.get("pengguna_dpt_p"),
+#                                     "pengguna_dptb_j": value.get("pengguna_dptb_j"),
+#                                     "pengguna_dptb_l": value.get("pengguna_dptb_l"),
+#                                     "pengguna_dptb_p": value.get("pengguna_dptb_p"),
+#                                     "suara_tidak_sah": value.get("suara_tidak_sah"),
+#                                     "pengguna_total_j": value.get("pengguna_total_j"),
+#                                     "pengguna_total_l": value.get("pengguna_total_l"),
+#                                     "pengguna_total_p": value.get("pengguna_total_p"),
+#                                     "pengguna_non_dpt_j": value.get("pengguna_non_dpt_j"),
+#                                     "pengguna_non_dpt_l": value.get("pengguna_non_dpt_l"),
+#                                     "pengguna_non_dpt_p": value.get("pengguna_non_dpt_p"),
+#                                 },
+#                             )
+#                     elif response.status_code == 404:
+#                         print("TPS NOT FOUND")
+#                         break
+#                     else:
+#                         print("Failed to get data from URL")
+#                 except Exception as e:
+#                     print(e)
+#                 tps = str(int(tps) + 1).zfill(3)
 
 
 def anomaly_detection(id_min, id_max):
