@@ -152,7 +152,7 @@ def crawling_papua():
     return "crawling_papua"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_select_province(province_code):
     provinsi = Provinsi.objects.filter(code__startswith=province_code).all()
     for p in provinsi:
