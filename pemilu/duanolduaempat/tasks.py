@@ -20,7 +20,7 @@ def crawling_all_kpu():
     return "crawling_all_kpu"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def anomaly_detection(id_min, id_max):
     if id_min and id_max:
         tps = Tps.objects.filter(id__gte=id_min, id__lte=id_max)
@@ -88,7 +88,7 @@ def anomaly_detection(id_min, id_max):
     return {"message": "Anomaly Detection Done", "total_anomaly_detected": error}
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_sumatera():
     provinsi = Provinsi.objects.filter(code__startswith="1").all()
     for p in provinsi:
@@ -96,7 +96,7 @@ def crawling_sumatera():
     return "crawling_sumatera"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_riau():
     provinsi = Provinsi.objects.filter(code__startswith="2").all()
     for p in provinsi:
@@ -104,7 +104,7 @@ def crawling_riau():
     return "crawling_riau"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_jawa():
     provinsi = Provinsi.objects.filter(code__startswith="3").all()
     for p in provinsi:
@@ -112,7 +112,7 @@ def crawling_jawa():
     return "crawling_jawa"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_bali():
     provinsi = Provinsi.objects.filter(code__startswith="5").all()
     for p in provinsi:
@@ -120,7 +120,7 @@ def crawling_bali():
     return "crawling_bali"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_kalimantan():
     provinsi = Provinsi.objects.filter(code__startswith="6").all()
     for p in provinsi:
@@ -128,7 +128,7 @@ def crawling_kalimantan():
     return "crawling_kalimantan"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_sulawesi():
     provinsi = Provinsi.objects.filter(code__startswith="7").all()
     for p in provinsi:
@@ -136,7 +136,7 @@ def crawling_sulawesi():
     return "crawling_sulawesi"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_maluku():
     provinsi = Provinsi.objects.filter(code__startswith="8").all()
     for p in provinsi:
@@ -144,7 +144,7 @@ def crawling_maluku():
     return "crawling_maluku"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_papua():
     provinsi = Provinsi.objects.filter(code__startswith="9").all()
     for p in provinsi:
@@ -152,7 +152,7 @@ def crawling_papua():
     return "crawling_papua"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def crawling_select_province(province_code):
     provinsi = Provinsi.objects.filter(code__startswith=province_code).all()
     for p in provinsi:
@@ -160,7 +160,7 @@ def crawling_select_province(province_code):
     return f"crawling_province_code{province_code}"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def run_anomaly_detection():
     tps_count = Tps.objects.count()
     id_range = divide_data(tps_count, 3)
@@ -169,19 +169,19 @@ def run_anomaly_detection():
     return "run_anomaly_detection"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def run_calculate_province_report():
     calculate_province_report()
     return "run_calculate_province_report"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def run_calculate_provice_anomaly_tps_report():
     calculate_province_anomaly_tps_report()
     return "run_calculate_provice_anomaly_tps_report"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def run_migration_ts():
     tps_count = Tps.objects.count()
     id_range = divide_data(tps_count, 3)
@@ -190,7 +190,7 @@ def run_migration_ts():
     return "run_migration_ts"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def call_migration_ts(id_min, id_max):
     migration_ts(id_min, id_max)
     return "run_migration_ts"
@@ -204,13 +204,13 @@ def run_migration_kelurahan_code():
     return "run_migration_kelurahan_code"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def migrate_kelurahan_code(id_min, id_max):
     set_kelurahan_code(id_min, id_max)
     return "migrate_kelurahan_code"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24 * 3, time_limit=60 * 60 * 24 * 3)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def backup_chasil_image():
     chasil_count = Image.objects.count()
     id_range = divide_data(chasil_count, 6)
@@ -221,7 +221,7 @@ def backup_chasil_image():
     return "backup_chasil_image"
 
 
-@celery_app.task(soft_time_limit=60 * 60 * 24, time_limit=60 * 60 * 24)
+@celery_app.task(soft_time_limit=60 * 60 * 24 * 7, time_limit=60 * 60 * 24 * 7)
 def upload_s3_image(id_min, id_max):
     storage = S3Storage()
     for image_id in range(id_min, id_max):
